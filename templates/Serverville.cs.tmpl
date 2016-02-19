@@ -1,0 +1,106 @@
+﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
+
+
+namespace Serverville
+{
+	
+	public class ServervilleClient
+	{
+		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
+
+		internal string ServerURL;
+		internal string SessionId;
+
+		private SignInReply UserInfo;
+
+		public bool LogMessages = false;
+
+		private ServervilleTransport Transport;
+
+
+		public ServervilleClient(string url)
+		{
+			ServerURL = url;
+			SessionId = PlayerPrefs.GetString("Serverville"+ServerURL+"SessionId", null);
+			if(SessionId != null && SessionId.Length == 0)
+				SessionId = null;
+			
+			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
+			{
+				Transport = new ServervilleHttp(this);
+			}
+			else
+			{
+				throw new Exception("Unknown server protocol: "+url);
+			}
+		}
+
+		public void Init(OnInitComplete onComplete)
+		{
+			Transport.Init(delegate(ErrorReply initErr)
+				{
+					if(initErr != null)
+					{
+						onComplete(null, initErr);
+						return;
+					}
+
+					if(SessionId != null)
+					{
+						ValidateSession(SessionId, delegate(SignInReply reply)
+							{
+								onComplete(reply, null);
+							},
+							delegate(ErrorReply err)
+							{
+								SignOut();
+								onComplete(null, err);
+							});
+					}
+					else
+					{
+						onComplete(null, null);
+					}
+
+				});
+		}
+
+		private void SetUserInfo(SignInReply userInfo)
+		{
+			if(userInfo == null)
+			{
+				UserInfo = null;
+				SessionId = null;
+				PlayerPrefs.DeleteKey("Serverville"+ServerURL+"SessionId");
+			}
+			else
+			{
+				UserInfo = userInfo;
+				SessionId = userInfo.session_id;
+				PlayerPrefs.SetString("Serverville"+ServerURL+"SessionId", SessionId);
+				PlayerPrefs.Save();
+			}
+		}
+
+		public bool IsSignedIn()
+		{
+			return SessionId != null;
+		}
+
+		public void SignOut()
+		{
+			SetUserInfo(null);
+		}
+
+		public SignInReply GetUserInfo()
+		{
+			return UserInfo;
+		}
+
+{{APIs}}
+
+	}
+
+}

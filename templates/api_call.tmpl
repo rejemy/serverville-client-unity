@@ -1,0 +1,21 @@
+﻿
+		public void {{MethodName}}({{ReqType}} request, Action<{{ReplyType}}> onSuccess, OnErrorReply onErr)
+		{
+            {{PreCall}}
+			Transport.CallAPI<{{ReplyType}}>("{{ApiName}}", request,
+				{{SuccessClosure}},
+				onErr
+            ); 
+		}
+
+		public void {{MethodName}}({{Params}}Action<{{ReplyType}}> onSuccess, OnErrorReply onErr)
+		{
+			{{MethodName}}(
+            new {{ReqType}}
+				{
+{{ReqInit}}
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
