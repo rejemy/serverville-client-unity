@@ -31,10 +31,6 @@ namespace Serverville
 			{
 				Transport = new ServervilleHttp(this);
 			}
-			else if(ServerURL.StartsWith("ws://") || ServerURL.StartsWith("wss://"))
-			{
-				Transport = new ServervilleWS(this);
-			}
 			else
 			{
 				throw new Exception("Unknown server protocol: "+url);
@@ -103,7 +99,14 @@ namespace Serverville
 			return UserInfo;
 		}
 
-﻿
+        public void ApiByName<ReqType,ReplyType>(string api, ReqType request, Action<ReplyType> onSuccess, OnErrorReply onErr)
+		{
+			Transport.CallAPI<ReplyType>(api, request,
+				onSuccess,
+				onErr
+            ); 
+		}
+        
 		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -126,7 +129,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void ValidateSession(ValidateSessionRequest request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -147,7 +150,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -168,7 +171,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void CreateAccount(CreateAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -191,7 +194,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void ConvertToFullAccount(CreateAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -214,7 +217,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetUserInfo(GetUserInfo request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -235,7 +238,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void SetUserKey(SetUserDataRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -258,7 +261,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void SetUserKeys(UserDataRequestList request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -279,7 +282,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetUserKey(KeyRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -300,7 +303,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetUserKeys(KeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -322,7 +325,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetAllUserKeys(AllKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -343,7 +346,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetDataKey(GlobalKeyRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -365,7 +368,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetDataKeys(GlobalKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -389,7 +392,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetAllDataKeys(AllGlobalKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -412,7 +415,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void SetTransientValue(SetTransientValueRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -435,7 +438,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void SetTransientValues(SetTransientValuesRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -456,7 +459,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetTransientValue(GetTransientValueRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -478,7 +481,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetTransientValues(GetTransientValuesRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -500,7 +503,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void getAllTransientValues(GetAllTransientValuesRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -521,7 +524,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void GetChannelInfo(JoinChannelRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
             
@@ -543,7 +546,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void JoinChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -565,7 +568,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void LeaveChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -586,7 +589,7 @@ namespace Serverville
                 onErr
            ); 
 		}
-﻿
+
 		public void SendClientMessage(TransientMessageRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -610,6 +613,7 @@ namespace Serverville
                 onErr
            ); 
 		}
+
 
 
 	}

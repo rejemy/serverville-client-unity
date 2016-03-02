@@ -99,6 +99,14 @@ namespace Serverville
 			return UserInfo;
 		}
 
+        public void ApiByName<ReqType,ReplyType>(string api, ReqType request, Action<ReplyType> onSuccess, OnErrorReply onErr)
+		{
+			Transport.CallAPI<ReplyType>(api, request,
+				onSuccess,
+				onErr
+            ); 
+		}
+        
 {{APIs}}
 
 	}
