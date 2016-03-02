@@ -110,6 +110,7 @@ namespace Serverville
 				if(isError)
 				{
 					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(replyJson, ServervilleHttp.JsonSettings);
+					SV.OnServerError(err);
 					if(onError != null)
 						onError(err);
 				}
@@ -197,7 +198,7 @@ namespace Serverville
 					string messageFrom = messageStr.Substring(split2+1, split3-(split2+1));
 					string messageJson = messageStr.Substring(split3+1);
 
-					Debug.Log("Message: "+messageId+" "+messageFrom+" "+messageJson);
+					SV.OnServerMessage(messageId, messageFrom, messageJson);
 				}
 				else if(messageType == "E" || messageType == "R")
 				{

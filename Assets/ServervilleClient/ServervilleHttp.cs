@@ -73,6 +73,7 @@ namespace Serverville
 				else
 				{
 					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(buffer.text, ServervilleHttp.JsonSettings);
+					sv.OnServerError(err);
 					if(onError != null)
 						onError(err);
 				}

@@ -19,6 +19,13 @@ namespace Serverville
 
 		private ServervilleTransport Transport;
 
+		public delegate void ErrorHandlerDelegate(ErrorReply err);
+		public delegate void ServerMessageTypeHandlerDelegate(string from, string json);
+		public delegate void ServerMessageHandlerDelegate(string messageType, string from, string json);
+
+		public ErrorHandlerDelegate GlobalErrorHandler;
+		public ServerMessageHandlerDelegate ServerMessageHandler;
+		public Dictionary<string,ServerMessageTypeHandlerDelegate> ServerMessageTypeHandlers;
 
 		public ServervilleClient(string url)
 		{
@@ -26,10 +33,16 @@ namespace Serverville
 			SessionId = PlayerPrefs.GetString("Serverville"+ServerURL+"SessionId", null);
 			if(SessionId != null && SessionId.Length == 0)
 				SessionId = null;
-			
+
+			ServerMessageTypeHandlers = new Dictionary<string,ServerMessageTypeHandlerDelegate>();
+
 			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
 			{
 				Transport = new ServervilleHttp(this);
+			}
+			else if(ServerURL.StartsWith("ws://") || ServerURL.StartsWith("wss://"))
+			{
+				Transport = new ServervilleWS(this);
 			}
 			else
 			{
@@ -99,6 +112,29 @@ namespace Serverville
 			return UserInfo;
 		}
 
+		internal void OnServerError(ErrorReply err)
+		{
+			if(GlobalErrorHandler != null)
+				GlobalErrorHandler(err);
+		}
+
+		internal void OnServerMessage(string messageId, string from, string jsonData)
+		{
+			ServerMessageTypeHandlerDelegate handler = null;
+			ServerMessageTypeHandlers.TryGetValue(messageId, out handler);
+			if(handler != null)
+			{
+				handler(from, jsonData);
+			}
+			else if(ServerMessageHandler != null)
+			{
+				ServerMessageHandler(messageId, from, jsonData);
+			}
+			else
+			{
+				Debug.Log("No handler for message type: "+messageId);
+			}
+		}
         public void ApiByName<ReqType,ReplyType>(string api, ReqType request, Action<ReplyType> onSuccess, OnErrorReply onErr)
 		{
 			Transport.CallAPI<ReplyType>(api, request,
