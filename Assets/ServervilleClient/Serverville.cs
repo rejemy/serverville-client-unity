@@ -31,6 +31,10 @@ namespace Serverville
 			{
 				Transport = new ServervilleHttp(this);
 			}
+			else if(ServerURL.StartsWith("ws://") || ServerURL.StartsWith("wss://"))
+			{
+				Transport = new ServervilleWS(this);
+			}
 			else
 			{
 				throw new Exception("Unknown server protocol: "+url);

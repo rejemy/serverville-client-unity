@@ -1,46 +1,56 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Serverville;
+using UnityEngine.UI;
 
 public class ServervilleClientTest : MonoBehaviour {
+
+	public Text ConsoleText;
 
 	// Use this for initialization
 	void Start () {
 
-		ServervilleClient sv = new ServervilleClient("http://localhost:8000");
+		ConsoleText.text = "";
+
+		string url = "ws://localhost:8000";
+
+		Log("Connecting to "+url);
+
+		ServervilleClient sv = new ServervilleClient(url);
 		sv.Init(delegate(SignInReply userInfo, ErrorReply initErr) {
 			if(initErr != null)
 			{
-				Debug.Log("Got an error: "+initErr.errorMessage);
+				Log("Got an error: "+initErr.errorMessage);
+				return;
 			}
 			else if(userInfo != null)
 			{
-				Debug.Log("Signed in");
+				Log("Signed in");
 			}
 			else
 			{
-				Debug.Log("Initted");
+				Log("Initted");
 			}
 
-			if(userInfo == null)
-			{
-				Debug.Log("Signing into test account");
-				sv.SignIn("testuser1", null, "testuser1",
-					delegate(SignInReply reply)
-					{
-						Debug.Log("Signed in with session "+reply.session_id);
-					},
-					delegate(ErrorReply err)
-					{
-						Debug.Log("Error signing in "+err.errorMessage);
-					}
-				);
-			}
+
+			Debug.Log("Signing into test account");
+			sv.SignIn("testuser1", null, "testuser1",
+				delegate(SignInReply reply)
+				{
+					Log("Signed in with session "+reply.session_id);
+				},
+				delegate(ErrorReply err)
+				{
+					Log("Error signing in "+err.errorMessage);
+				}
+			);
+
 		});
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	public void Log(string text)
+	{
+		Debug.Log(text);
+		ConsoleText.text += text+"\n";
 	}
 }

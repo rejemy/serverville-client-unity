@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_3_2;UNITY_5_3;UNITY_5;ENABLE_NEW_BUGREPORTER;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_SPRITE_POLYGON;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;INCLUDE_DIRECTX12;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_LOCALIZATION;ENABLE_ANDROID_ATLAS_ETC1_COMPRESSION;ENABLE_EDITOR_TESTS_RUNNER;UNITY_STANDALONE_OSX;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_TEXTUREID_MAP;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_LOG_MIXED_STACKTRACE;ENABLE_UNITYWEBREQUEST;ENABLE_CLUSTERINPUT;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_3;UNITY_5_3;UNITY_5;ENABLE_NEW_BUGREPORTER;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_SPRITE_POLYGON;ENABLE_TERRAIN;ENABLE_UNET;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;INCLUDE_DIRECTX12;RENDER_SOFTWARE_CURSOR;ENABLE_LOCALIZATION;ENABLE_ANDROID_ATLAS_ETC1_COMPRESSION;ENABLE_EDITOR_TESTS_RUNNER;UNITY_WEBGL;UNITY_WEBGL_API;UNITY_DISABLE_WEB_VERIFICATION;ENABLE_TEXTUREID_MAP;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_LOG_MIXED_STACKTRACE;ENABLE_IL2CPP;DEVELOPMENT_BUILD;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
@@ -49,6 +49,7 @@
      <Compile Include="Assets\ServervilleClient\ServervilleHttp.cs" />
      <Compile Include="Assets\ServervilleClient\ServervilleMessages.cs" />
      <Compile Include="Assets\ServervilleClient\ServervilleTypes.cs" />
+     <Compile Include="Assets\ServervilleClient\ServervilleWS.cs" />
      <Compile Include="Assets\ServervilleClient\json\Aot\EnumerationExtension.cs" />
      <Compile Include="Assets\ServervilleClient\json\ConstructorHandling.cs" />
      <Compile Include="Assets\ServervilleClient\json\Converters\DateTimeConverterBase.cs" />
@@ -311,6 +312,74 @@
      <Compile Include="Assets\ServervilleClient\json\WinRT\Utilities\RT_ThreadSafeStore.cs" />
      <Compile Include="Assets\ServervilleClient\json\WinRT\Utilities\RT_TypeExtensions.cs" />
      <Compile Include="Assets\ServervilleClient\json\WinRT\Utilities\RT_ValidationUtils.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\ByteOrder.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\CloseEventArgs.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\CloseStatusCode.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\CompressionMethod.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\ErrorEventArgs.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Ext.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Fin.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\HttpBase.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\HttpRequest.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\HttpResponse.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\LogData.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\LogLevel.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Logger.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Mask.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\MessageEventArgs.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\AuthenticationBase.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\AuthenticationChallenge.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\AuthenticationResponse.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\AuthenticationSchemes.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\Chunk.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ChunkStream.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ChunkedRequestStream.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ClientSslConfiguration.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\Cookie.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\CookieCollection.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\CookieException.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\EndPointListener.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\EndPointManager.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpBasicIdentity.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpConnection.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpDigestIdentity.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpHeaderInfo.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpHeaderType.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListener.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerAsyncResult.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerContext.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerException.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerPrefix.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerPrefixCollection.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerRequest.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpListenerResponse.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpRequestHeader.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpResponseHeader.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpStatusCode.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpStreamAsyncResult.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpUtility.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\HttpVersion.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\InputChunkState.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\InputState.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\LineState.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\NetworkCredential.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\QueryStringCollection.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ReadBufferState.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\RequestStream.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ResponseStream.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\ServerSslConfiguration.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\SslConfiguration.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\WebHeaderCollection.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\WebSockets\HttpListenerWebSocketContext.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\WebSockets\TcpListenerWebSocketContext.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Net\WebSockets\WebSocketContext.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Opcode.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\PayloadData.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\Rsv.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\WebSocket.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\WebSocketException.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\WebSocketFrame.cs" />
+     <Compile Include="Assets\ServervilleClient\websocket-sharp\WebSocketState.cs" />
      <Compile Include="Assets\Test\ServervilleClientTest.cs" />
      <None Include="Assets\ServervilleClient\json\License.txt" />
  <Reference Include="UnityEngine.UI">

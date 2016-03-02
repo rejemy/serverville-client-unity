@@ -9,9 +9,9 @@ using System;
 namespace Serverville
 {
 
-	public class HttpUnityComponent : MonoBehaviour 
+	class ServervilleHttpComponent : MonoBehaviour 
 	{
-		public static HttpUnityComponent Get()
+		public static ServervilleHttpComponent Get()
 		{
 			GameObject obj = GameObject.Find("/ServervilleHttp");
 			if(obj == null)
@@ -20,10 +20,10 @@ namespace Serverville
 				DontDestroyOnLoad(obj);
 			}
 
-			HttpUnityComponent http = obj.GetComponent<HttpUnityComponent>();
+			ServervilleHttpComponent http = obj.GetComponent<ServervilleHttpComponent>();
 			if(http == null)
 			{
-				http = obj.AddComponent<HttpUnityComponent>();
+				http = obj.AddComponent<ServervilleHttpComponent>();
 			}
 
 			return http;
@@ -84,7 +84,7 @@ namespace Serverville
 	{
 		private ServervilleClient SV;
 
-		private HttpUnityComponent MonoComponent;
+		private ServervilleHttpComponent MonoComponent;
 		public static JsonSerializerSettings JsonSettings;
 
 		public ServervilleHttp(ServervilleClient sv)
@@ -94,7 +94,7 @@ namespace Serverville
 
 		public void Init(OnErrorReply onConnected)
 		{
-			MonoComponent = HttpUnityComponent.Get();
+			MonoComponent = ServervilleHttpComponent.Get();
 
 			if(JsonSettings == null)
 			{
