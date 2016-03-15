@@ -8,12 +8,12 @@ namespace Serverville
 	
 	public class ServervilleClient
 	{
-		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
+		public delegate void OnInitComplete(UserAccountInfo userInfo, ErrorReply err);
 
 		internal string ServerURL;
 		internal string SessionId;
 
-		private SignInReply UserInfo;
+		private UserAccountInfo UserInfo;
 
 		public bool LogMessages = false;
 
@@ -62,7 +62,7 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(SignInReply reply)
+						ValidateSession(SessionId, delegate(UserAccountInfo reply)
 							{
 								onComplete(reply, null);
 							},
@@ -80,7 +80,7 @@ namespace Serverville
 				});
 		}
 
-		private void SetUserInfo(SignInReply userInfo)
+		private void SetUserInfo(UserAccountInfo userInfo)
 		{
 			if(userInfo == null)
 			{
@@ -107,7 +107,7 @@ namespace Serverville
 			SetUserInfo(null);
 		}
 
-		public SignInReply GetUserInfo()
+		public UserAccountInfo GetUserInfo()
 		{
 			return UserInfo;
 		}
@@ -143,16 +143,16 @@ namespace Serverville
             ); 
 		}
         
-		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void SignIn(SignIn request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("SignIn", request,
-				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<UserAccountInfo>("SignIn", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void SignIn(string username, string email, string password, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void SignIn(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			SignIn(
             new SignIn
@@ -166,16 +166,16 @@ namespace Serverville
            ); 
 		}
 
-		public void ValidateSession(ValidateSessionRequest request, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void ValidateSession(ValidateSessionRequest request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("ValidateSession", request,
-				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<UserAccountInfo>("ValidateSession", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void ValidateSession(string session_id, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void ValidateSession(string session_id, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			ValidateSession(
             new ValidateSessionRequest
@@ -187,16 +187,16 @@ namespace Serverville
            ); 
 		}
 
-		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<CreateAccountReply>("CreateAnonymousAccount", request,
-				onSuccess,
+			Transport.CallAPI<UserAccountInfo>("CreateAnonymousAccount", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void CreateAnonymousAccount(Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void CreateAnonymousAccount(Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			CreateAnonymousAccount(
             new CreateAnonymousAccount
@@ -208,16 +208,16 @@ namespace Serverville
            ); 
 		}
 
-		public void CreateAccount(CreateAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void CreateAccount(CreateAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<CreateAccountReply>("CreateAccount", request,
-				onSuccess,
+			Transport.CallAPI<UserAccountInfo>("CreateAccount", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void CreateAccount(string username, string email, string password, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void CreateAccount(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			CreateAccount(
             new CreateAccount
@@ -231,16 +231,16 @@ namespace Serverville
            ); 
 		}
 
-		public void ConvertToFullAccount(CreateAccount request, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void ConvertToFullAccount(CreateAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<CreateAccountReply>("ConvertToFullAccount", request,
-				onSuccess,
+			Transport.CallAPI<UserAccountInfo>("ConvertToFullAccount", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void ConvertToFullAccount(string username, string email, string password, Action<CreateAccountReply> onSuccess, OnErrorReply onErr)
+		public void ConvertToFullAccount(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			ConvertToFullAccount(
             new CreateAccount
@@ -254,16 +254,16 @@ namespace Serverville
            ); 
 		}
 
-		public void GetUserInfo(GetUserInfo request, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void GetUserInfo(GetUserInfo request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("GetUserInfo", request,
-				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<UserAccountInfo>("GetUserInfo", request,
+				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
 
-		public void GetUserInfo(Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void GetUserInfo(Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
 			GetUserInfo(
             new GetUserInfo

@@ -8,12 +8,12 @@ namespace Serverville
 	
 	public class ServervilleClient
 	{
-		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
+		public delegate void OnInitComplete(UserAccountInfo userInfo, ErrorReply err);
 
 		internal string ServerURL;
 		internal string SessionId;
 
-		private SignInReply UserInfo;
+		private UserAccountInfo UserInfo;
 
 		public bool LogMessages = false;
 
@@ -62,7 +62,7 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(SignInReply reply)
+						ValidateSession(SessionId, delegate(UserAccountInfo reply)
 							{
 								onComplete(reply, null);
 							},
@@ -80,7 +80,7 @@ namespace Serverville
 				});
 		}
 
-		private void SetUserInfo(SignInReply userInfo)
+		private void SetUserInfo(UserAccountInfo userInfo)
 		{
 			if(userInfo == null)
 			{
@@ -107,7 +107,7 @@ namespace Serverville
 			SetUserInfo(null);
 		}
 
-		public SignInReply GetUserInfo()
+		public UserAccountInfo GetUserInfo()
 		{
 			return UserInfo;
 		}

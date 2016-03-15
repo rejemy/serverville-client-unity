@@ -15,7 +15,7 @@ namespace Serverville
 	}
 
 	[Serializable]
-	public class SignInReply
+	public class UserAccountInfo
 	{
 		public string user_id;
 		public string username;
@@ -32,15 +32,6 @@ namespace Serverville
 	[Serializable]
 	public class CreateAnonymousAccount
 	{
-	}
-
-	[Serializable]
-	public class CreateAccountReply
-	{
-		public string user_id;
-		public string username;
-		public string email;
-		public string session_id;
 	}
 
 	[Serializable]

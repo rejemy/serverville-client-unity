@@ -2,7 +2,7 @@
 
 namespace Serverville
 {
-	public delegate void OnSignInReply(SignInReply user);
+	public delegate void OnSignInReply(UserAccountInfo user);
 	public delegate void OnErrorReply(ErrorReply reply);
 	public delegate void OnGenericReply(object reply);
 
