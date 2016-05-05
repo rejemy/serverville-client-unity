@@ -152,6 +152,31 @@ OBJECT
 	}
 
 	[Serializable]
+	public class KeyDataRecordRequest
+	{
+		public string id;
+	}
+
+	[Serializable]
+	public class KeyDataInfo
+	{
+		public string id;
+		public string type;
+		public string owner;
+		public string parent;
+		public double version;
+		public double created;
+		public double modified;
+	}
+
+	[Serializable]
+	public class SetGlobalDataRequest
+	{
+		public string id;
+		public List<SetUserDataRequest> values;
+	}
+
+	[Serializable]
 	public class SetTransientValueRequest
 	{
 		public string key;

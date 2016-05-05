@@ -452,6 +452,49 @@ namespace Serverville
            ); 
 		}
 
+		public void GetKeyDataRecord(KeyDataRecordRequest request, Action<KeyDataInfo> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<KeyDataInfo>("GetKeyDataRecord", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetKeyDataRecord(string id, Action<KeyDataInfo> onSuccess, OnErrorReply onErr)
+		{
+			GetKeyDataRecord(
+            new KeyDataRecordRequest
+				{
+					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void SetDataKeys(SetGlobalDataRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<SetDataReply>("SetDataKeys", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SetDataKeys(string id, List<SetUserDataRequest> values, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+			SetDataKeys(
+            new SetGlobalDataRequest
+				{
+					id = id,
+					values = values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
 		public void SetTransientValue(SetTransientValueRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
