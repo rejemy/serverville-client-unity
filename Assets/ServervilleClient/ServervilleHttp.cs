@@ -97,14 +97,21 @@ namespace Serverville
 		{
 			MonoComponent = ServervilleHttpComponent.Get();
 
+			GetSerializerSettings();
+
+			if(onConnected != null)
+				onConnected(null);
+		}
+
+		public static JsonSerializerSettings GetSerializerSettings()
+		{
 			if(JsonSettings == null)
 			{
 				JsonSettings = new JsonSerializerSettings();
 				JsonSettings.Converters.Add(new StringEnumConverter());
 			}
 
-			if(onConnected != null)
-				onConnected(null);
+			return JsonSettings;
 		}
 
 		public void CallAPI<ReplyType>(string api, object request, Action<ReplyType> onSuccess, OnErrorReply onError)

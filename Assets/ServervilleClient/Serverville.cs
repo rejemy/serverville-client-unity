@@ -504,11 +504,12 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValue(string key, object value, JsonDataType data_type, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValue(string alias, string key, object value, JsonDataType data_type, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValue(
             new SetTransientValueRequest
 				{
+					alias = alias,
 					key = key,
 					value = value,
 					data_type = data_type
@@ -527,11 +528,12 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValues(List<SetTransientValueRequest> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValues(string alias, List<SetTransientValueItem> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValues(
             new SetTransientValuesRequest
 				{
+					alias = alias,
 					values = values
 				},
 				onSuccess,
@@ -548,12 +550,13 @@ namespace Serverville
             ); 
 		}
 
-		public void GetTransientValue(string id, string key, Action<DataItemReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValue(string id, string alias, string key, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValue(
             new GetTransientValueRequest
 				{
 					id = id,
+					alias = alias,
 					key = key
 				},
 				onSuccess,
@@ -570,12 +573,13 @@ namespace Serverville
             ); 
 		}
 
-		public void GetTransientValues(string id, List<string> keys, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValues(string id, string alias, List<string> keys, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValues(
             new GetTransientValuesRequest
 				{
 					id = id,
+					alias = alias,
 					keys = keys
 				},
 				onSuccess,
@@ -592,56 +596,35 @@ namespace Serverville
             ); 
 		}
 
-		public void getAllTransientValues(string id, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void getAllTransientValues(string id, string alias, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
 			getAllTransientValues(
             new GetAllTransientValuesRequest
 				{
-					id = id
-				},
-				onSuccess,
-                onErr
-           ); 
-		}
-
-		public void GetChannelInfo(JoinChannelRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
-		{
-            
-			Transport.CallAPI<ChannelInfo>("GetChannelInfo", request,
-				onSuccess,
-				onErr
-            ); 
-		}
-
-		public void GetChannelInfo(string id, bool listen_only, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
-		{
-			GetChannelInfo(
-            new JoinChannelRequest
-				{
 					id = id,
-					listen_only = listen_only
+					alias = alias
 				},
 				onSuccess,
                 onErr
            ); 
 		}
 
-		public void JoinChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void JoinChannel(JoinChannelRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("JoinChannel", request,
+			Transport.CallAPI<ChannelInfo>("JoinChannel", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void JoinChannel(string id, bool listen_only, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void JoinChannel(string alias, string id, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
 			JoinChannel(
             new JoinChannelRequest
 				{
-					id = id,
-					listen_only = listen_only
+					alias = alias,
+					id = id
 				},
 				onSuccess,
                 onErr
@@ -657,10 +640,53 @@ namespace Serverville
             ); 
 		}
 
-		public void LeaveChannel(string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void LeaveChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			LeaveChannel(
             new LeaveChannelRequest
+				{
+					alias = alias,
+					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void ListenToChannel(ListenToResidentRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<ChannelInfo>("ListenToChannel", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void ListenToChannel(string id, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		{
+			ListenToChannel(
+            new ListenToResidentRequest
+				{
+					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void StopListenToChannel(StopListenToResidentRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<EmptyClientReply>("StopListenToChannel", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void StopListenToChannel(string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			StopListenToChannel(
+            new StopListenToResidentRequest
 				{
 					id = id
 				},

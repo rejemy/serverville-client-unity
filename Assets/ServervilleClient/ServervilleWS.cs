@@ -54,7 +54,7 @@ namespace Serverville
 		private delegate void MessageReplyClosure(bool isError, string replyJson);
 		private Dictionary<string,MessageReplyClosure> ReplyCallbacks;
 
-		public static JsonSerializerSettings JsonSettings;
+		private static JsonSerializerSettings JsonSettings;
 
 		private Queue<string> ReplyQueue;
 		private Queue<string> SwapQueue;
@@ -70,6 +70,8 @@ namespace Serverville
 
 		public void Init(OnErrorReply onConnected)
 		{
+			GetSerializerSettings();
+
 			ServervilleWSComponent wsComp = ServervilleWSComponent.Get();
 			wsComp.UpdateEvent += Update;
 
@@ -98,6 +100,17 @@ namespace Serverville
 			ServerSocket.Connect();
 		}
 
+		public static JsonSerializerSettings GetSerializerSettings()
+		{
+			if(JsonSettings == null)
+			{
+				JsonSettings = new JsonSerializerSettings();
+				JsonSettings.Converters.Add(new StringEnumConverter());
+			}
+
+			return JsonSettings;
+		}
+
 		public void CallAPI<ReplyType>(string api, object request, Action<ReplyType> onSuccess, OnErrorReply onError)
 		{
 			string messageNum = (MessageSequence++).ToString();
@@ -109,14 +122,14 @@ namespace Serverville
 			{
 				if(isError)
 				{
-					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(replyJson, ServervilleHttp.JsonSettings);
+					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(replyJson, JsonSettings);
 					SV.OnServerError(err);
 					if(onError != null)
 						onError(err);
 				}
 				else
 				{
-					ReplyType reply = JsonConvert.DeserializeObject<ReplyType>(replyJson, ServervilleHttp.JsonSettings);
+					ReplyType reply = JsonConvert.DeserializeObject<ReplyType>(replyJson, JsonSettings);
 					if(onSuccess != null)
 						onSuccess(reply);
 				}
@@ -161,12 +174,12 @@ namespace Serverville
 
 			foreach(string message in SwapQueue)
 			{
-				HandleMessage(message);
+				HandleStringMessage(message);
 			}
 			SwapQueue.Clear();
 		}
 
-		private void HandleMessage(string messageStr)
+		private void HandleStringMessage(string messageStr)
 		{
 			try
 			{
@@ -193,12 +206,19 @@ namespace Serverville
 						Debug.Log("Incorrectly formatted message");
 						return;
 					}
+					int split4 = messageStr.IndexOf(':', split3+1);
+					if(split4 < 0)
+					{
+						Debug.Log("Incorrectly formatted message");
+						return;
+					}
 
 					string messageId = messageStr.Substring(split1+1, split2-(split1+1));
 					string messageFrom = messageStr.Substring(split2+1, split3-(split2+1));
-					string messageJson = messageStr.Substring(split3+1);
+					string messageVia = messageStr.Substring(split3+1, split4-(split3+1));
+					string messageJson = messageStr.Substring(split4+1);
 
-					SV.OnServerMessage(messageId, messageFrom, messageJson);
+					SV.OnServerMessage(messageId, messageFrom, messageVia, messageJson);
 				}
 				else if(messageType == "E" || messageType == "R")
 				{
@@ -356,12 +376,19 @@ namespace Serverville
 						Debug.Log("Incorrectly formatted message");
 						return;
 					}
+					int split4 = messageStr.IndexOf(':', split3+1);
+					if(split4 < 0)
+					{
+						Debug.Log("Incorrectly formatted message");
+						return;
+					}
 
 					string messageId = messageStr.Substring(split1+1, split2-(split1+1));
 					string messageFrom = messageStr.Substring(split2+1, split3-(split2+1));
-					string messageJson = messageStr.Substring(split3+1);
-					
-					Debug.Log("Message: "+messageId+" "+messageFrom+" "+messageJson);
+					string messageVia = messageStr.Substring(split3+1, split4-(split3+1));
+					string messageJson = messageStr.Substring(split4+1);
+
+					SV.OnServerMessage(messageId, messageFrom, messageVia, messageJson);
 				}
 				else if(messageType == "E" || messageType == "R")
 				{

@@ -179,6 +179,7 @@ OBJECT
 	[Serializable]
 	public class SetTransientValueRequest
 	{
+		public string alias;
 		public string key;
 		public object value;
 		public JsonDataType data_type;
@@ -190,15 +191,25 @@ OBJECT
 	}
 
 	[Serializable]
+	public class SetTransientValueItem
+	{
+		public string key;
+		public object value;
+		public JsonDataType data_type;
+	}
+
+	[Serializable]
 	public class SetTransientValuesRequest
 	{
-		public List<SetTransientValueRequest> values;
+		public string alias;
+		public List<SetTransientValueItem> values;
 	}
 
 	[Serializable]
 	public class GetTransientValueRequest
 	{
 		public string id;
+		public string alias;
 		public string key;
 	}
 
@@ -206,6 +217,7 @@ OBJECT
 	public class GetTransientValuesRequest
 	{
 		public string id;
+		public string alias;
 		public List<string> keys;
 	}
 
@@ -213,24 +225,46 @@ OBJECT
 	public class GetAllTransientValuesRequest
 	{
 		public string id;
+		public string alias;
 	}
 
 	[Serializable]
 	public class JoinChannelRequest
 	{
+		public string alias;
 		public string id;
-		public bool listen_only;
+	}
+
+	[Serializable]
+	public class ChannelMemberInfo
+	{
+		public string id;
+		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
 	public class ChannelInfo
 	{
 		public string id;
-		public List<string> members;
+		public Dictionary<string,object> values;
+		public Dictionary<string,ChannelMemberInfo> members;
 	}
 
 	[Serializable]
 	public class LeaveChannelRequest
+	{
+		public string alias;
+		public string id;
+	}
+
+	[Serializable]
+	public class ListenToResidentRequest
+	{
+		public string id;
+	}
+
+	[Serializable]
+	public class StopListenToResidentRequest
 	{
 		public string id;
 	}
