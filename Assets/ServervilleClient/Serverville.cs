@@ -504,15 +504,14 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValue(string alias, string key, object value, JsonDataType data_type, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValue(string alias, string key, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValue(
             new SetTransientValueRequest
 				{
 					alias = alias,
 					key = key,
-					value = value,
-					data_type = data_type
+					value = value
 				},
 				onSuccess,
                 onErr
@@ -528,7 +527,7 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValues(string alias, List<SetTransientValueItem> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValues(string alias, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValues(
             new SetTransientValuesRequest
@@ -541,16 +540,16 @@ namespace Serverville
            ); 
 		}
 
-		public void GetTransientValue(GetTransientValueRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValue(GetTransientValueRequest request, Action<TransientDataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<DataItemReply>("GetTransientValue", request,
+			Transport.CallAPI<TransientDataItemReply>("GetTransientValue", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void GetTransientValue(string id, string alias, string key, Action<DataItemReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValue(string id, string alias, string key, Action<TransientDataItemReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValue(
             new GetTransientValueRequest
@@ -564,16 +563,16 @@ namespace Serverville
            ); 
 		}
 
-		public void GetTransientValues(GetTransientValuesRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValues(GetTransientValuesRequest request, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("GetTransientValues", request,
+			Transport.CallAPI<TransientDataItemsReply>("GetTransientValues", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void GetTransientValues(string id, string alias, List<string> keys, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValues(string id, string alias, List<string> keys, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValues(
             new GetTransientValuesRequest
@@ -587,18 +586,18 @@ namespace Serverville
            ); 
 		}
 
-		public void getAllTransientValues(GetAllTransientValuesRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void GetAllTransientValues(GetAllTransientValuesRequest request, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("getAllTransientValues", request,
+			Transport.CallAPI<TransientDataItemsReply>("GetAllTransientValues", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void getAllTransientValues(string id, string alias, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		public void GetAllTransientValues(string id, string alias, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
-			getAllTransientValues(
+			GetAllTransientValues(
             new GetAllTransientValuesRequest
 				{
 					id = id,
@@ -643,6 +642,50 @@ namespace Serverville
 		public void LeaveChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			LeaveChannel(
+            new LeaveChannelRequest
+				{
+					alias = alias,
+					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void AddAliasToChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<EmptyClientReply>("AddAliasToChannel", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void AddAliasToChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			AddAliasToChannel(
+            new JoinChannelRequest
+				{
+					alias = alias,
+					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void RemoveAliasFromChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<EmptyClientReply>("RemoveAliasFromChannel", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void RemoveAliasFromChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			RemoveAliasFromChannel(
             new LeaveChannelRequest
 				{
 					alias = alias,
@@ -704,15 +747,14 @@ namespace Serverville
             ); 
 		}
 
-		public void SendClientMessage(string to, string message_type, object value, JsonDataType data_type, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SendClientMessage(string to, string message_type, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SendClientMessage(
             new TransientMessageRequest
 				{
 					to = to,
 					message_type = message_type,
-					value = value,
-					data_type = data_type
+					value = value
 				},
 				onSuccess,
                 onErr

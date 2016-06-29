@@ -182,7 +182,6 @@ OBJECT
 		public string alias;
 		public string key;
 		public object value;
-		public JsonDataType data_type;
 	}
 
 	[Serializable]
@@ -191,18 +190,10 @@ OBJECT
 	}
 
 	[Serializable]
-	public class SetTransientValueItem
-	{
-		public string key;
-		public object value;
-		public JsonDataType data_type;
-	}
-
-	[Serializable]
 	public class SetTransientValuesRequest
 	{
 		public string alias;
-		public List<SetTransientValueItem> values;
+		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
@@ -214,11 +205,23 @@ OBJECT
 	}
 
 	[Serializable]
+	public class TransientDataItemReply
+	{
+		public object value;
+	}
+
+	[Serializable]
 	public class GetTransientValuesRequest
 	{
 		public string id;
 		public string alias;
 		public List<string> keys;
+	}
+
+	[Serializable]
+	public class TransientDataItemsReply
+	{
+		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
@@ -275,7 +278,6 @@ OBJECT
 		public string to;
 		public string message_type;
 		public object value;
-		public JsonDataType data_type;
 	}
 
 
