@@ -15,12 +15,13 @@ namespace Serverville
 	}
 
 	[Serializable]
-	public class UserAccountInfo
+	public class SignInReply
 	{
 		public string user_id;
 		public string username;
 		public string email;
 		public string session_id;
+		public double time;
 	}
 
 	[Serializable]
@@ -32,6 +33,7 @@ namespace Serverville
 	[Serializable]
 	public class CreateAnonymousAccount
 	{
+		public string invite_code;
 	}
 
 	[Serializable]
@@ -40,11 +42,32 @@ namespace Serverville
 		public string username;
 		public string email;
 		public string password;
+		public string invite_code;
+	}
+
+	[Serializable]
+	public class EmptyClientRequest
+	{
+	}
+
+	[Serializable]
+	public class ServerTime
+	{
+		public double time;
 	}
 
 	[Serializable]
 	public class GetUserInfo
 	{
+	}
+
+	[Serializable]
+	public class UserAccountInfo
+	{
+		public string user_id;
+		public string username;
+		public string email;
+		public string session_id;
 	}
 
 	[Serializable]

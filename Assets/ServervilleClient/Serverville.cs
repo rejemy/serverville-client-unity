@@ -143,16 +143,16 @@ namespace Serverville
             ); 
 		}
         
-		public void SignIn(SignIn request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("SignIn", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<SignInReply>("SignIn", request,
+				onSuccess,
 				onErr
             ); 
 		}
 
-		public void SignIn(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void SignIn(string username, string email, string password, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			SignIn(
             new SignIn
@@ -166,16 +166,16 @@ namespace Serverville
            ); 
 		}
 
-		public void ValidateSession(ValidateSessionRequest request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void ValidateSession(ValidateSessionRequest request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("ValidateSession", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<SignInReply>("ValidateSession", request,
+				onSuccess,
 				onErr
             ); 
 		}
 
-		public void ValidateSession(string session_id, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void ValidateSession(string session_id, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			ValidateSession(
             new ValidateSessionRequest
@@ -187,67 +187,90 @@ namespace Serverville
            ); 
 		}
 
-		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("CreateAnonymousAccount", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<SignInReply>("CreateAnonymousAccount", request,
+				onSuccess,
 				onErr
             ); 
 		}
 
-		public void CreateAnonymousAccount(Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void CreateAnonymousAccount(string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			CreateAnonymousAccount(
             new CreateAnonymousAccount
 				{
-
+					invite_code = invite_code
 				},
 				onSuccess,
                 onErr
            ); 
 		}
 
-		public void CreateAccount(CreateAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void CreateAccount(CreateAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("CreateAccount", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<SignInReply>("CreateAccount", request,
+				onSuccess,
 				onErr
             ); 
 		}
 
-		public void CreateAccount(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void CreateAccount(string username, string email, string password, string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			CreateAccount(
             new CreateAccount
 				{
 					username = username,
 					email = email,
-					password = password
+					password = password,
+					invite_code = invite_code
 				},
 				onSuccess,
                 onErr
            ); 
 		}
 
-		public void ConvertToFullAccount(CreateAccount request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void ConvertToFullAccount(CreateAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("ConvertToFullAccount", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			Transport.CallAPI<SignInReply>("ConvertToFullAccount", request,
+				onSuccess,
 				onErr
             ); 
 		}
 
-		public void ConvertToFullAccount(string username, string email, string password, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
+		public void ConvertToFullAccount(string username, string email, string password, string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			ConvertToFullAccount(
             new CreateAccount
 				{
 					username = username,
 					email = email,
-					password = password
+					password = password,
+					invite_code = invite_code
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+
+		public void GetTime(EmptyClientRequest request, Action<ServerTime> onSuccess, OnErrorReply onErr)
+		{
+            
+			Transport.CallAPI<ServerTime>("GetTime", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetTime(Action<ServerTime> onSuccess, OnErrorReply onErr)
+		{
+			GetTime(
+            new EmptyClientRequest
+				{
+
 				},
 				onSuccess,
                 onErr
