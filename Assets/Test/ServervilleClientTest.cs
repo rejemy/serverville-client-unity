@@ -17,7 +17,7 @@ public class ServervilleClientTest : MonoBehaviour {
 		Log("Connecting to "+url);
 
 		ServervilleClient sv = new ServervilleClient(url);
-		sv.Init(delegate(UserAccountInfo userInfo, ErrorReply initErr) {
+		sv.Init(delegate(SignInReply userInfo, ErrorReply initErr) {
 			if(initErr != null)
 			{
 				Log("Got an error: "+initErr.errorMessage);
@@ -26,6 +26,7 @@ public class ServervilleClientTest : MonoBehaviour {
 			else if(userInfo != null)
 			{
 				Log("Signed in");
+				return;
 			}
 			else
 			{
@@ -35,7 +36,7 @@ public class ServervilleClientTest : MonoBehaviour {
 
 			Debug.Log("Signing into test account");
 			sv.SignIn("testuser1", null, "testuser1",
-				delegate(UserAccountInfo reply)
+				delegate(SignInReply reply)
 				{
 					Log("Signed in with session "+reply.session_id);
 				},

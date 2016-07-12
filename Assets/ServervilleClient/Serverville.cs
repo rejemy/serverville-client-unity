@@ -1,14 +1,52 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
 
 namespace Serverville
 {
-	
+	class ServervilleClientComponent : MonoBehaviour 
+	{
+		private ServervilleClient Client;
+
+		public static ServervilleClientComponent Get(ServervilleClient client)
+		{
+			GameObject obj = GameObject.Find("/Serverville");
+			if(obj == null)
+			{
+				obj = new GameObject("Serverville");
+				DontDestroyOnLoad(obj);
+			}
+
+			ServervilleClientComponent comp = obj.GetComponent<ServervilleClientComponent>();
+			if(comp == null)
+			{
+				comp = obj.AddComponent<ServervilleClientComponent>();
+				comp.Client = client;
+			}
+
+			return comp;
+		}
+
+		public void StartPingTimer(float period)
+		{
+			InvokeRepeating("PingTimer", period, period);
+		}
+
+		public void StopPingTimer()
+		{
+			CancelInvoke("PingTimer");
+		}
+
+		public void PingTimer()
+		{
+			Client.Ping();
+		}
+	}
+
 	public class ServervilleClient
 	{
-		public delegate void OnInitComplete(UserAccountInfo userInfo, ErrorReply err);
+		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
 
 		internal string ServerURL;
 		internal string SessionId;
@@ -26,6 +64,12 @@ namespace Serverville
 		public ErrorHandlerDelegate GlobalErrorHandler;
 		public ServerMessageHandlerDelegate ServerMessageHandler;
 		public Dictionary<string,ServerMessageTypeHandlerDelegate> ServerMessageTypeHandlers;
+
+		public float PingPeriod = 5.0f;
+		private float LastSend = 0.0f;
+
+		private long LastServerTime = 0;
+		private long LastServerTimeAt = 0;
 
 		public ServervilleClient(string url)
 		{
@@ -62,7 +106,7 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(UserAccountInfo reply)
+						ValidateSession(SessionId, delegate(SignInReply reply)
 							{
 								onComplete(reply, null);
 							},
@@ -80,9 +124,9 @@ namespace Serverville
 				});
 		}
 
-		private void SetUserInfo(UserAccountInfo userInfo)
+		private void SetUserInfo(SignInReply reply)
 		{
-			if(userInfo == null)
+			if(reply == null)
 			{
 				UserInfo = null;
 				SessionId = null;
@@ -90,10 +134,16 @@ namespace Serverville
 			}
 			else
 			{
-				UserInfo = userInfo;
-				SessionId = userInfo.session_id;
+				UserInfo = new UserAccountInfo();
+				UserInfo.email = reply.email;
+				UserInfo.session_id = reply.session_id;
+				UserInfo.username = reply.username;
+				UserInfo.user_id = reply.user_id;
+				SessionId = reply.session_id;
 				PlayerPrefs.SetString("Serverville"+ServerURL+"SessionId", SessionId);
 				PlayerPrefs.Save();
+
+				setServerTime((long)reply.time);
 			}
 		}
 
@@ -116,10 +166,23 @@ namespace Serverville
 		{
 			if(GlobalErrorHandler != null)
 				GlobalErrorHandler(err);
+		
+			if(err.errorCode == 19) // Session expired
+			{
+				Shutdown();
+			}
 		}
 
-		internal void OnServerMessage(string messageId, string from, string jsonData)
+		internal void OnServerMessage(string messageId, string from, string via, string jsonData)
 		{
+			if(messageId == "_error")
+			{
+				// Pushed error
+				ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
+				OnServerError(err);
+				return;
+			}
+
 			ServerMessageTypeHandlerDelegate handler = null;
 			ServerMessageTypeHandlers.TryGetValue(messageId, out handler);
 			if(handler != null)
@@ -135,19 +198,76 @@ namespace Serverville
 				Debug.Log("No handler for message type: "+messageId);
 			}
 		}
+
+		internal void OnTransportClosed()
+		{
+			StopPingTimer();
+			OnServerError(ErrorReply.makeClientErrorCode(-1, "Closed"));
+		}
+
+		internal void StartPingTimer()
+		{
+			ServervilleClientComponent comp = ServervilleClientComponent.Get(this);
+			comp.StartPingTimer(PingPeriod);
+		}
+
+		internal void StopPingTimer()
+		{
+			ServervilleClientComponent comp = ServervilleClientComponent.Get(this);
+			comp.StopPingTimer();
+		}
+
+		internal void Ping()
+		{
+			if(Time.unscaledTime - LastSend < 4.0)
+				return;
+
+			GetTime(delegate(ServerTime reply)
+				{
+					setServerTime((long)reply.time);
+				},
+				null);
+		}
+
+		internal void setServerTime(long time)
+		{
+			LastServerTime = time;
+			LastServerTimeAt = (long)(Time.unscaledTime * 1000.0);
+		}
+
+		long getServerTime()
+		{
+			if(LastServerTime == 0)
+				return 0;
+			return ((long)(Time.unscaledTime * 1000.0) - LastServerTimeAt) + LastServerTime;
+		}
+
+		float getLastSendTime()
+		{
+			return LastSend;
+		}
+
+		public void Shutdown()
+		{
+			if(Transport != null)
+				Transport.Close();
+		}
+
         public void ApiByName<ReqType,ReplyType>(string api, ReqType request, Action<ReplyType> onSuccess, OnErrorReply onErr)
 		{
 			Transport.CallAPI<ReplyType>(api, request,
 				onSuccess,
 				onErr
             ); 
+
+            LastSend = Time.unscaledTime;
 		}
         
 		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("SignIn", request,
-				onSuccess,
+			ApiByName<SignIn,SignInReply>("SignIn", request,
+				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
@@ -165,12 +285,11 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void ValidateSession(ValidateSessionRequest request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("ValidateSession", request,
-				onSuccess,
+			ApiByName<ValidateSessionRequest,SignInReply>("ValidateSession", request,
+				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
@@ -186,12 +305,11 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void CreateAnonymousAccount(CreateAnonymousAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("CreateAnonymousAccount", request,
-				onSuccess,
+			ApiByName<CreateAnonymousAccount,SignInReply>("CreateAnonymousAccount", request,
+				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
@@ -207,12 +325,11 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void CreateAccount(CreateAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("CreateAccount", request,
-				onSuccess,
+			ApiByName<CreateAccount,SignInReply>("CreateAccount", request,
+				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
@@ -231,12 +348,11 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void ConvertToFullAccount(CreateAccount request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SignInReply>("ConvertToFullAccount", request,
-				onSuccess,
+			ApiByName<CreateAccount,SignInReply>("ConvertToFullAccount", request,
+				delegate(SignInReply reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
 				onErr
             ); 
 		}
@@ -255,11 +371,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetTime(EmptyClientRequest request, Action<ServerTime> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<ServerTime>("GetTime", request,
+			ApiByName<EmptyClientRequest,ServerTime>("GetTime", request,
 				onSuccess,
 				onErr
             ); 
@@ -276,12 +391,11 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetUserInfo(GetUserInfo request, Action<UserAccountInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserAccountInfo>("GetUserInfo", request,
-				delegate(UserAccountInfo reply) { SetUserInfo(reply); if(onSuccess != null) { onSuccess(reply); } },
+			ApiByName<GetUserInfo,UserAccountInfo>("GetUserInfo", request,
+				onSuccess,
 				onErr
             ); 
 		}
@@ -297,11 +411,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SetUserKey(SetUserDataRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SetDataReply>("SetUserKey", request,
+			ApiByName<SetUserDataRequest,SetDataReply>("SetUserKey", request,
 				onSuccess,
 				onErr
             ); 
@@ -320,11 +433,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SetUserKeys(UserDataRequestList request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SetDataReply>("SetUserKeys", request,
+			ApiByName<UserDataRequestList,SetDataReply>("SetUserKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -341,11 +453,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetUserKey(KeyRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<DataItemReply>("GetUserKey", request,
+			ApiByName<KeyRequest,DataItemReply>("GetUserKey", request,
 				onSuccess,
 				onErr
             ); 
@@ -362,11 +473,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetUserKeys(KeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("GetUserKeys", request,
+			ApiByName<KeysRequest,UserDataReply>("GetUserKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -384,11 +494,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetAllUserKeys(AllKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("GetAllUserKeys", request,
+			ApiByName<AllKeysRequest,UserDataReply>("GetAllUserKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -405,11 +514,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetDataKey(GlobalKeyRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<DataItemReply>("GetDataKey", request,
+			ApiByName<GlobalKeyRequest,DataItemReply>("GetDataKey", request,
 				onSuccess,
 				onErr
             ); 
@@ -427,11 +535,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetDataKeys(GlobalKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("GetDataKeys", request,
+			ApiByName<GlobalKeysRequest,UserDataReply>("GetDataKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -451,11 +558,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetAllDataKeys(AllGlobalKeysRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<UserDataReply>("GetAllDataKeys", request,
+			ApiByName<AllGlobalKeysRequest,UserDataReply>("GetAllDataKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -474,11 +580,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetKeyDataRecord(KeyDataRecordRequest request, Action<KeyDataInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<KeyDataInfo>("GetKeyDataRecord", request,
+			ApiByName<KeyDataRecordRequest,KeyDataInfo>("GetKeyDataRecord", request,
 				onSuccess,
 				onErr
             ); 
@@ -495,11 +600,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SetDataKeys(SetGlobalDataRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<SetDataReply>("SetDataKeys", request,
+			ApiByName<SetGlobalDataRequest,SetDataReply>("SetDataKeys", request,
 				onSuccess,
 				onErr
             ); 
@@ -517,11 +621,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SetTransientValue(SetTransientValueRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("SetTransientValue", request,
+			ApiByName<SetTransientValueRequest,EmptyClientReply>("SetTransientValue", request,
 				onSuccess,
 				onErr
             ); 
@@ -540,11 +643,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SetTransientValues(SetTransientValuesRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("SetTransientValues", request,
+			ApiByName<SetTransientValuesRequest,EmptyClientReply>("SetTransientValues", request,
 				onSuccess,
 				onErr
             ); 
@@ -562,11 +664,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetTransientValue(GetTransientValueRequest request, Action<TransientDataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<TransientDataItemReply>("GetTransientValue", request,
+			ApiByName<GetTransientValueRequest,TransientDataItemReply>("GetTransientValue", request,
 				onSuccess,
 				onErr
             ); 
@@ -585,11 +686,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetTransientValues(GetTransientValuesRequest request, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<TransientDataItemsReply>("GetTransientValues", request,
+			ApiByName<GetTransientValuesRequest,TransientDataItemsReply>("GetTransientValues", request,
 				onSuccess,
 				onErr
             ); 
@@ -608,11 +708,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void GetAllTransientValues(GetAllTransientValuesRequest request, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<TransientDataItemsReply>("GetAllTransientValues", request,
+			ApiByName<GetAllTransientValuesRequest,TransientDataItemsReply>("GetAllTransientValues", request,
 				onSuccess,
 				onErr
             ); 
@@ -630,11 +729,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void JoinChannel(JoinChannelRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<ChannelInfo>("JoinChannel", request,
+			ApiByName<JoinChannelRequest,ChannelInfo>("JoinChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -652,11 +750,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void LeaveChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("LeaveChannel", request,
+			ApiByName<LeaveChannelRequest,EmptyClientReply>("LeaveChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -674,11 +771,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void AddAliasToChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("AddAliasToChannel", request,
+			ApiByName<JoinChannelRequest,EmptyClientReply>("AddAliasToChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -696,11 +792,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void RemoveAliasFromChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("RemoveAliasFromChannel", request,
+			ApiByName<LeaveChannelRequest,EmptyClientReply>("RemoveAliasFromChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -718,11 +813,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void ListenToChannel(ListenToResidentRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<ChannelInfo>("ListenToChannel", request,
+			ApiByName<ListenToResidentRequest,ChannelInfo>("ListenToChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -739,11 +833,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void StopListenToChannel(StopListenToResidentRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("StopListenToChannel", request,
+			ApiByName<StopListenToResidentRequest,EmptyClientReply>("StopListenToChannel", request,
 				onSuccess,
 				onErr
             ); 
@@ -760,11 +853,10 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 		public void SendClientMessage(TransientMessageRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			Transport.CallAPI<EmptyClientReply>("SendClientMessage", request,
+			ApiByName<TransientMessageRequest,EmptyClientReply>("SendClientMessage", request,
 				onSuccess,
 				onErr
             ); 
@@ -783,7 +875,6 @@ namespace Serverville
                 onErr
            ); 
 		}
-
 
 
 	}

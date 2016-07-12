@@ -21,6 +21,16 @@ namespace Serverville
 			reply.errorMessage = "There was a connection error";
 			reply.errorDetails = details;
 
+			switch(code)
+			{
+			case -1:
+				reply.errorMessage = "Connection closed";
+				break;
+			case -2:
+				reply.errorMessage = "Network error";
+				break;
+			}
+
 			return reply;
 		}
 	}
@@ -29,5 +39,6 @@ namespace Serverville
 	{
 		void Init(OnErrorReply onConnected);
 		void CallAPI<ReplyType>(string api, object request, Action<ReplyType> onSuccess, OnErrorReply onError);
+		void Close();
 	}
 }

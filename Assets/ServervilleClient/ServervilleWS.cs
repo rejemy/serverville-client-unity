@@ -17,10 +17,10 @@ namespace Serverville
 
 		public static ServervilleWSComponent Get()
 		{
-			GameObject obj = GameObject.Find("/ServervilleWS");
+			GameObject obj = GameObject.Find("/Serverville");
 			if(obj == null)
 			{
-				obj = new GameObject("ServervilleWS");
+				obj = new GameObject("Serverville");
 				DontDestroyOnLoad(obj);
 			}
 
@@ -94,7 +94,7 @@ namespace Serverville
 			{
 				Debug.Log("Connection error: "+e.ToString());
 				if(onConnected != null)
-					onConnected(ErrorReply.makeClientErrorCode(1, e.Message));
+					onConnected(ErrorReply.makeClientErrorCode(-2, e.Message));
 			};
 
 			ServerSocket.Connect();
@@ -140,10 +140,19 @@ namespace Serverville
 			ServerSocket.Send(message);
 		}
 
+		public void Close()
+		{
+			if(ServerSocket != null)
+			{
+				ServerSocket.Close();
+			}
+		}
+
 		// Called on a background thread
 		private void OnWSClosed(object sender, CloseEventArgs e)
 		{
 			Debug.Log("Connection closed");
+			SV.OnTransportClosed();
 		}
 
 		// Called on a background thread
@@ -339,10 +348,19 @@ namespace Serverville
 
 			ServerSocket.Send(message);
 		}
-			
+		
+		public void Close()
+		{
+			if(ServerSocket != null)
+			{
+				ServerSocket.Close();
+			}
+		}
+
 		private void OnWSClosed(int code)
 		{
 			Debug.Log("Connection closed");
+			SV.OnTransportClosed();
 		}
 			
 		private void OnWSBinaryMessage()

@@ -1,7 +1,7 @@
 		public void {{MethodName}}({{ReqType}} request, Action<{{ReplyType}}> onSuccess, OnErrorReply onErr)
 		{
             {{PreCall}}
-			Transport.CallAPI<{{ReplyType}}>("{{ApiName}}", request,
+			ApiByName<{{ReqType}},{{ReplyType}}>("{{ApiName}}", request,
 				{{SuccessClosure}},
 				onErr
             ); 
@@ -18,4 +18,3 @@
                 onErr
            ); 
 		}
-

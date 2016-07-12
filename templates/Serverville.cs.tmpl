@@ -1,14 +1,52 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
 
 namespace Serverville
 {
-	
+	class ServervilleClientComponent : MonoBehaviour 
+	{
+		private ServervilleClient Client;
+
+		public static ServervilleClientComponent Get(ServervilleClient client)
+		{
+			GameObject obj = GameObject.Find("/Serverville");
+			if(obj == null)
+			{
+				obj = new GameObject("Serverville");
+				DontDestroyOnLoad(obj);
+			}
+
+			ServervilleClientComponent comp = obj.GetComponent<ServervilleClientComponent>();
+			if(comp == null)
+			{
+				comp = obj.AddComponent<ServervilleClientComponent>();
+				comp.Client = client;
+			}
+
+			return comp;
+		}
+
+		public void StartPingTimer(float period)
+		{
+			InvokeRepeating("PingTimer", period, period);
+		}
+
+		public void StopPingTimer()
+		{
+			CancelInvoke("PingTimer");
+		}
+
+		public void PingTimer()
+		{
+			Client.Ping();
+		}
+	}
+
 	public class ServervilleClient
 	{
-		public delegate void OnInitComplete(UserAccountInfo userInfo, ErrorReply err);
+		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
 
 		internal string ServerURL;
 		internal string SessionId;
@@ -26,6 +64,12 @@ namespace Serverville
 		public ErrorHandlerDelegate GlobalErrorHandler;
 		public ServerMessageHandlerDelegate ServerMessageHandler;
 		public Dictionary<string,ServerMessageTypeHandlerDelegate> ServerMessageTypeHandlers;
+
+		public float PingPeriod = 5.0f;
+		private float LastSend = 0.0f;
+
+		private long LastServerTime = 0;
+		private long LastServerTimeAt = 0;
 
 		public ServervilleClient(string url)
 		{
@@ -62,7 +106,7 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(UserAccountInfo reply)
+						ValidateSession(SessionId, delegate(SignInReply reply)
 							{
 								onComplete(reply, null);
 							},
@@ -80,9 +124,9 @@ namespace Serverville
 				});
 		}
 
-		private void SetUserInfo(UserAccountInfo userInfo)
+		private void SetUserInfo(SignInReply reply)
 		{
-			if(userInfo == null)
+			if(reply == null)
 			{
 				UserInfo = null;
 				SessionId = null;
@@ -90,10 +134,16 @@ namespace Serverville
 			}
 			else
 			{
-				UserInfo = userInfo;
-				SessionId = userInfo.session_id;
+				UserInfo = new UserAccountInfo();
+				UserInfo.email = reply.email;
+				UserInfo.session_id = reply.session_id;
+				UserInfo.username = reply.username;
+				UserInfo.user_id = reply.user_id;
+				SessionId = reply.session_id;
 				PlayerPrefs.SetString("Serverville"+ServerURL+"SessionId", SessionId);
 				PlayerPrefs.Save();
+
+				setServerTime((long)reply.time);
 			}
 		}
 
@@ -116,10 +166,23 @@ namespace Serverville
 		{
 			if(GlobalErrorHandler != null)
 				GlobalErrorHandler(err);
+		
+			if(err.errorCode == 19) // Session expired
+			{
+				Shutdown();
+			}
 		}
 
-		internal void OnServerMessage(string messageId, string from, string jsonData)
+		internal void OnServerMessage(string messageId, string from, string via, string jsonData)
 		{
+			if(messageId == "_error")
+			{
+				// Pushed error
+				ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
+				OnServerError(err);
+				return;
+			}
+
 			ServerMessageTypeHandlerDelegate handler = null;
 			ServerMessageTypeHandlers.TryGetValue(messageId, out handler);
 			if(handler != null)
@@ -135,12 +198,69 @@ namespace Serverville
 				Debug.Log("No handler for message type: "+messageId);
 			}
 		}
+
+		internal void OnTransportClosed()
+		{
+			StopPingTimer();
+			OnServerError(ErrorReply.makeClientErrorCode(-1, "Closed"));
+		}
+
+		internal void StartPingTimer()
+		{
+			ServervilleClientComponent comp = ServervilleClientComponent.Get(this);
+			comp.StartPingTimer(PingPeriod);
+		}
+
+		internal void StopPingTimer()
+		{
+			ServervilleClientComponent comp = ServervilleClientComponent.Get(this);
+			comp.StopPingTimer();
+		}
+
+		internal void Ping()
+		{
+			if(Time.unscaledTime - LastSend < 4.0)
+				return;
+
+			GetTime(delegate(ServerTime reply)
+				{
+					setServerTime((long)reply.time);
+				},
+				null);
+		}
+
+		internal void setServerTime(long time)
+		{
+			LastServerTime = time;
+			LastServerTimeAt = (long)(Time.unscaledTime * 1000.0);
+		}
+
+		long getServerTime()
+		{
+			if(LastServerTime == 0)
+				return 0;
+			return ((long)(Time.unscaledTime * 1000.0) - LastServerTimeAt) + LastServerTime;
+		}
+
+		float getLastSendTime()
+		{
+			return LastSend;
+		}
+
+		public void Shutdown()
+		{
+			if(Transport != null)
+				Transport.Close();
+		}
+
         public void ApiByName<ReqType,ReplyType>(string api, ReqType request, Action<ReplyType> onSuccess, OnErrorReply onErr)
 		{
 			Transport.CallAPI<ReplyType>(api, request,
 				onSuccess,
 				onErr
             ); 
+
+            LastSend = Time.unscaledTime;
 		}
         
 {{APIs}}

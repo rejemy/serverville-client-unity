@@ -13,10 +13,10 @@ namespace Serverville
 	{
 		public static ServervilleHttpComponent Get()
 		{
-			GameObject obj = GameObject.Find("/ServervilleHttp");
+			GameObject obj = GameObject.Find("/Serverville");
 			if(obj == null)
 			{
-				obj = new GameObject("ServervilleHttp");
+				obj = new GameObject("Serverville");
 				DontDestroyOnLoad(obj);
 			}
 
@@ -54,7 +54,7 @@ namespace Serverville
 
 				if(www.isError)
 				{
-					ErrorReply err = ErrorReply.makeClientErrorCode(1, www.error);
+					ErrorReply err = ErrorReply.makeClientErrorCode(-2, www.error);
 					if(onError != null)
 						onError(err);
 
@@ -127,6 +127,11 @@ namespace Serverville
 						onSuccess((ReplyType)reply);
 				},
 				onError));
+		}
+
+		public void Close()
+		{
+			
 		}
 
 	}
