@@ -259,6 +259,7 @@ OBJECT
 	{
 		public string alias;
 		public string id;
+		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
@@ -281,6 +282,7 @@ OBJECT
 	{
 		public string alias;
 		public string id;
+		public Dictionary<string,object> final_values;
 	}
 
 	[Serializable]

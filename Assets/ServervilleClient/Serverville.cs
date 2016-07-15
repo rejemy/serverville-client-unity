@@ -738,13 +738,14 @@ namespace Serverville
             ); 
 		}
 
-		public void JoinChannel(string alias, string id, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		public void JoinChannel(string alias, string id, Dictionary<string,object> values, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
 			JoinChannel(
             new JoinChannelRequest
 				{
 					alias = alias,
-					id = id
+					id = id,
+					values = values
 				},
 				onSuccess,
                 onErr
@@ -759,13 +760,14 @@ namespace Serverville
             ); 
 		}
 
-		public void LeaveChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void LeaveChannel(string alias, string id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			LeaveChannel(
             new LeaveChannelRequest
 				{
 					alias = alias,
-					id = id
+					id = id,
+					final_values = final_values
 				},
 				onSuccess,
                 onErr
@@ -780,13 +782,14 @@ namespace Serverville
             ); 
 		}
 
-		public void AddAliasToChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void AddAliasToChannel(string alias, string id, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			AddAliasToChannel(
             new JoinChannelRequest
 				{
 					alias = alias,
-					id = id
+					id = id,
+					values = values
 				},
 				onSuccess,
                 onErr
@@ -801,13 +804,14 @@ namespace Serverville
             ); 
 		}
 
-		public void RemoveAliasFromChannel(string alias, string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void RemoveAliasFromChannel(string alias, string id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			RemoveAliasFromChannel(
             new LeaveChannelRequest
 				{
 					alias = alias,
-					id = id
+					id = id,
+					final_values = final_values
 				},
 				onSuccess,
                 onErr
