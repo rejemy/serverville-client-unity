@@ -301,6 +301,7 @@ OBJECT
 	public class TransientMessageRequest
 	{
 		public string to;
+		public string alias;
 		public string message_type;
 		public object value;
 	}

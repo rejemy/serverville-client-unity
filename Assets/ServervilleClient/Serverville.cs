@@ -866,12 +866,13 @@ namespace Serverville
             ); 
 		}
 
-		public void SendClientMessage(string to, string message_type, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SendClientMessage(string to, string alias, string message_type, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SendClientMessage(
             new TransientMessageRequest
 				{
 					to = to,
+					alias = alias,
 					message_type = message_type,
 					value = value
 				},
