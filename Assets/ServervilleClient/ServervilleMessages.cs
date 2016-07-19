@@ -21,6 +21,7 @@ namespace Serverville
 		public string username;
 		public string email;
 		public string session_id;
+		public double admin_level;
 		public double time;
 	}
 
@@ -68,6 +69,7 @@ namespace Serverville
 		public string username;
 		public string email;
 		public string session_id;
+		public double admin_level;
 	}
 
 	[Serializable]
