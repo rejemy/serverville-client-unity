@@ -308,6 +308,25 @@ OBJECT
 		public object value;
 	}
 
+	[Serializable]
+	public class CurrencyBalanceRequest
+	{
+		public string currency_id;
+	}
+
+	[Serializable]
+	public class CurrencyBalanceReply
+	{
+		public string currency_id;
+		public int balance;
+	}
+
+	[Serializable]
+	public class CurrencyBalancesReply
+	{
+		public Dictionary<string,int> balances;
+	}
+
 
 
 }

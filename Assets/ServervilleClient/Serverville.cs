@@ -880,6 +880,46 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void GetCurrencyBalance(CurrencyBalanceRequest request, Action<CurrencyBalanceReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<CurrencyBalanceRequest,CurrencyBalanceReply>("GetCurrencyBalance", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetCurrencyBalance(string currency_id, Action<CurrencyBalanceReply> onSuccess, OnErrorReply onErr)
+		{
+			GetCurrencyBalance(
+            new CurrencyBalanceRequest
+				{
+					currency_id = currency_id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetCurrencyBalances(EmptyClientRequest request, Action<CurrencyBalancesReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<EmptyClientRequest,CurrencyBalancesReply>("GetCurrencyBalances", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetCurrencyBalances(Action<CurrencyBalancesReply> onSuccess, OnErrorReply onErr)
+		{
+			GetCurrencyBalances(
+            new EmptyClientRequest
+				{
+
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 
 
 	}
