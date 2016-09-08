@@ -22,6 +22,8 @@ namespace Serverville
 		public string email;
 		public string session_id;
 		public double admin_level;
+		public string language;
+		public string country;
 		public double time;
 	}
 
@@ -35,6 +37,8 @@ namespace Serverville
 	public class CreateAnonymousAccount
 	{
 		public string invite_code;
+		public string language;
+		public string country;
 	}
 
 	[Serializable]
@@ -44,6 +48,8 @@ namespace Serverville
 		public string email;
 		public string password;
 		public string invite_code;
+		public string language;
+		public string country;
 	}
 
 	[Serializable]
@@ -70,6 +76,18 @@ namespace Serverville
 		public string email;
 		public string session_id;
 		public double admin_level;
+	}
+
+	[Serializable]
+	public class SetLocaleRequest
+	{
+		public string country;
+		public string language;
+	}
+
+	[Serializable]
+	public class EmptyClientReply
+	{
 	}
 
 	[Serializable]
@@ -210,11 +228,6 @@ OBJECT
 	}
 
 	[Serializable]
-	public class EmptyClientReply
-	{
-	}
-
-	[Serializable]
 	public class SetTransientValuesRequest
 	{
 		public string alias;
@@ -325,6 +338,49 @@ OBJECT
 	public class CurrencyBalancesReply
 	{
 		public Dictionary<string,int> balances;
+	}
+
+	[Serializable]
+	public class GetProductsRequest
+	{
+	}
+
+	[Serializable]
+	public class ProductInfo
+	{
+		public string id;
+		public string name;
+		public string description;
+		public string image_url;
+		public double price;
+		public string display_price;
+	}
+
+	[Serializable]
+	public class ProductInfoList
+	{
+		public List<ProductInfo> products;
+	}
+
+	[Serializable]
+	public class GetProductRequest
+	{
+		public string product_id;
+	}
+
+	[Serializable]
+	public class StripeCheckoutRequest
+	{
+		public string stripe_token;
+		public string product_id;
+	}
+
+	[Serializable]
+	public class ProductPurchasedReply
+	{
+		public string product_id;
+		public double price;
+		public Dictionary<string,int> currencies;
 	}
 
 

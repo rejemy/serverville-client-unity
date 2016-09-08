@@ -314,12 +314,14 @@ namespace Serverville
             ); 
 		}
 
-		public void CreateAnonymousAccount(string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void CreateAnonymousAccount(string invite_code, string language, string country, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			CreateAnonymousAccount(
             new CreateAnonymousAccount
 				{
-					invite_code = invite_code
+					invite_code = invite_code,
+					language = language,
+					country = country
 				},
 				onSuccess,
                 onErr
@@ -334,7 +336,7 @@ namespace Serverville
             ); 
 		}
 
-		public void CreateAccount(string username, string email, string password, string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void CreateAccount(string username, string email, string password, string invite_code, string language, string country, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			CreateAccount(
             new CreateAccount
@@ -342,7 +344,9 @@ namespace Serverville
 					username = username,
 					email = email,
 					password = password,
-					invite_code = invite_code
+					invite_code = invite_code,
+					language = language,
+					country = country
 				},
 				onSuccess,
                 onErr
@@ -357,7 +361,7 @@ namespace Serverville
             ); 
 		}
 
-		public void ConvertToFullAccount(string username, string email, string password, string invite_code, Action<SignInReply> onSuccess, OnErrorReply onErr)
+		public void ConvertToFullAccount(string username, string email, string password, string invite_code, string language, string country, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
 			ConvertToFullAccount(
             new CreateAccount
@@ -365,7 +369,9 @@ namespace Serverville
 					username = username,
 					email = email,
 					password = password,
-					invite_code = invite_code
+					invite_code = invite_code,
+					language = language,
+					country = country
 				},
 				onSuccess,
                 onErr
@@ -406,6 +412,27 @@ namespace Serverville
             new GetUserInfo
 				{
 
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void SetLocale(SetLocaleRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<SetLocaleRequest,EmptyClientReply>("SetLocale", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SetLocale(string country, string language, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			SetLocale(
+            new SetLocaleRequest
+				{
+					country = country,
+					language = language
 				},
 				onSuccess,
                 onErr
@@ -915,6 +942,67 @@ namespace Serverville
             new EmptyClientRequest
 				{
 
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetProducts(GetProductsRequest request, Action<ProductInfoList> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<GetProductsRequest,ProductInfoList>("GetProducts", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetProducts(Action<ProductInfoList> onSuccess, OnErrorReply onErr)
+		{
+			GetProducts(
+            new GetProductsRequest
+				{
+
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetProduct(GetProductRequest request, Action<ProductInfo> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<GetProductRequest,ProductInfo>("GetProduct", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetProduct(string product_id, Action<ProductInfo> onSuccess, OnErrorReply onErr)
+		{
+			GetProduct(
+            new GetProductRequest
+				{
+					product_id = product_id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void stripeCheckout(StripeCheckoutRequest request, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<StripeCheckoutRequest,ProductPurchasedReply>("stripeCheckout", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void stripeCheckout(string stripe_token, string product_id, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		{
+			stripeCheckout(
+            new StripeCheckoutRequest
+				{
+					stripe_token = stripe_token,
+					product_id = product_id
 				},
 				onSuccess,
                 onErr
