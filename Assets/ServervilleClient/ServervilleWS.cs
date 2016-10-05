@@ -226,7 +226,10 @@ namespace Serverville
 					string messageFrom = messageStr.Substring(split2+1, split3-(split2+1));
 					string messageVia = messageStr.Substring(split3+1, split4-(split3+1));
 					string messageJson = messageStr.Substring(split4+1);
-
+					if(messageFrom.Length == 0)
+						messageFrom = null;
+					if(messageVia.Length == 0)
+						messageVia = null;
 					SV.OnServerMessage(messageId, messageFrom, messageVia, messageJson);
 				}
 				else if(messageType == "E" || messageType == "R")
