@@ -438,6 +438,26 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void GetUserDataCombo(GetUserDataComboRequest request, Action<GetUserDataComboReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<GetUserDataComboRequest,GetUserDataComboReply>("GetUserDataCombo", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetUserDataCombo(double since, Action<GetUserDataComboReply> onSuccess, OnErrorReply onErr)
+		{
+			GetUserDataCombo(
+            new GetUserDataComboRequest
+				{
+					since = since
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void SetUserKey(SetUserDataRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -622,6 +642,27 @@ namespace Serverville
             new KeyDataRecordRequest
 				{
 					id = id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetKeyDataRecords(KeyDataRecordsRequest request, Action<KeyDataRecords> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<KeyDataRecordsRequest,KeyDataRecords>("GetKeyDataRecords", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetKeyDataRecords(string type, string parent, Action<KeyDataRecords> onSuccess, OnErrorReply onErr)
+		{
+			GetKeyDataRecords(
+            new KeyDataRecordsRequest
+				{
+					type = type,
+					parent = parent
 				},
 				onSuccess,
                 onErr

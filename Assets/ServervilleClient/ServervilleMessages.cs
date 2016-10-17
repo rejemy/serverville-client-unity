@@ -91,6 +91,12 @@ namespace Serverville
 	}
 
 	[Serializable]
+	public class GetUserDataComboRequest
+	{
+		public double since;
+	}
+
+	[Serializable]
 	public enum JsonDataType
 	{
 		[EnumMember(Value = "null")]
@@ -111,6 +117,25 @@ DATETIME,
 BYTES,
 		[EnumMember(Value = "object")]
 OBJECT
+	}
+
+	[Serializable]
+	public class DataItemReply
+	{
+		public string id;
+		public string key;
+		public object value;
+		public JsonDataType data_type;
+		public double created;
+		public double modified;
+		public bool deleted;
+	}
+
+	[Serializable]
+	public class GetUserDataComboReply
+	{
+		public Dictionary<string,DataItemReply> values;
+		public Dictionary<string,int> balances;
 	}
 
 	[Serializable]
@@ -137,18 +162,6 @@ OBJECT
 	public class KeyRequest
 	{
 		public string key;
-	}
-
-	[Serializable]
-	public class DataItemReply
-	{
-		public string id;
-		public string key;
-		public object value;
-		public JsonDataType data_type;
-		public double created;
-		public double modified;
-		public bool deleted;
 	}
 
 	[Serializable]
@@ -210,6 +223,19 @@ OBJECT
 		public double version;
 		public double created;
 		public double modified;
+	}
+
+	[Serializable]
+	public class KeyDataRecordsRequest
+	{
+		public string type;
+		public string parent;
+	}
+
+	[Serializable]
+	public class KeyDataRecords
+	{
+		public List<KeyDataInfo> records;
 	}
 
 	[Serializable]
