@@ -380,6 +380,7 @@ OBJECT
 		public string image_url;
 		public double price;
 		public string display_price;
+		public string currency;
 	}
 
 	[Serializable]
