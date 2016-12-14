@@ -58,12 +58,20 @@ namespace Serverville
 		private ServervilleTransport Transport;
 
 		public delegate void ErrorHandlerDelegate(ErrorReply err);
-		public delegate void ServerMessageTypeHandlerDelegate(string from, string json);
-		public delegate void ServerMessageHandlerDelegate(string messageType, string from, string json);
+		public delegate void UserMessageHandlerDelegate(UserMessageNotification message);
+		public delegate void ResidentJoinedNotificationDelegate(ResidentJoinedNotification message);
+		public delegate void ResidentLeftNotificationDelegate(ResidentLeftNotification message);
+		public delegate void ResidentEventNotificationDelegate(ResidentEventNotification message);
+		public delegate void ResidentStateUpdateNotificationDelegate(ResidentStateUpdateNotification message);
 
 		public ErrorHandlerDelegate GlobalErrorHandler;
-		public ServerMessageHandlerDelegate ServerMessageHandler;
-		public Dictionary<string,ServerMessageTypeHandlerDelegate> ServerMessageTypeHandlers;
+		public UserMessageHandlerDelegate ServerMessageHandler;
+		public Dictionary<string,UserMessageHandlerDelegate> ServerMessageTypeHandlers;
+
+		public ResidentJoinedNotificationDelegate ResidentJoinedHandler;
+		public ResidentLeftNotificationDelegate ResidentLeftHandler;
+		public ResidentEventNotificationDelegate ResidentEventHandler;
+		public ResidentStateUpdateNotificationDelegate ResidentStateUpdateHandler;
 
 		public float PingPeriod = 5.0f;
 		private float LastSend = 0.0f;
@@ -78,7 +86,7 @@ namespace Serverville
 			if(SessionId != null && SessionId.Length == 0)
 				SessionId = null;
 
-			ServerMessageTypeHandlers = new Dictionary<string,ServerMessageTypeHandlerDelegate>();
+			ServerMessageTypeHandlers = new Dictionary<string,UserMessageHandlerDelegate>();
 
 			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
 			{
@@ -173,29 +181,83 @@ namespace Serverville
 			}
 		}
 
-		internal void OnServerMessage(string messageId, string from, string via, string jsonData)
+		internal void OnServerNotification(string notificationType, string notificationJson)
 		{
-			if(messageId == "_error")
+			switch(notificationType)
 			{
-				// Pushed error
-				ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
-				OnServerError(err);
-				return;
+				case "error":
+				{
+					// Pushed error
+					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(notificationJson, ServervilleHttp.JsonSettings);
+					OnServerError(err);
+					return;
+				}
+				case "msg":
+				{
+					UserMessageNotification note = JsonConvert.DeserializeObject<UserMessageNotification>(notificationJson, ServervilleHttp.JsonSettings);
+					OnUserMessage(note);
+					return;
+				}
+				case "resJoined":
+				{
+					if(ResidentJoinedHandler != null)
+					{
+						ResidentJoinedNotification note = JsonConvert.DeserializeObject<ResidentJoinedNotification>(notificationJson, ServervilleHttp.JsonSettings);
+						ResidentJoinedHandler(note);
+					}
+					return;
+				}
+				case "resLeft":
+				{
+					if(ResidentLeftHandler != null)
+					{
+						ResidentLeftNotification note = JsonConvert.DeserializeObject<ResidentLeftNotification>(notificationJson, ServervilleHttp.JsonSettings);
+						ResidentLeftHandler(note);
+					}
+					return;
+				}
+				case "resEvent":
+				{
+					if(ResidentEventHandler != null)
+					{
+						ResidentEventNotification note = JsonConvert.DeserializeObject<ResidentEventNotification>(notificationJson, ServervilleHttp.JsonSettings);
+						ResidentEventHandler(note);
+					}
+					return;
+				}
+				case "resUpdate":
+				{
+					if(ResidentStateUpdateHandler != null)
+					{
+						ResidentStateUpdateNotification note = JsonConvert.DeserializeObject<ResidentStateUpdateNotification>(notificationJson, ServervilleHttp.JsonSettings);
+						ResidentStateUpdateHandler(note);
+					}
+					return;
+				}
+				default:
+				{
+					Debug.Log("Unknown server notification type: "+notificationType);
+					return;
+				}
 			}
 
-			ServerMessageTypeHandlerDelegate handler = null;
-			ServerMessageTypeHandlers.TryGetValue(messageId, out handler);
+		}
+
+		internal void OnUserMessage(UserMessageNotification message)
+		{
+			UserMessageHandlerDelegate handler = null;
+			ServerMessageTypeHandlers.TryGetValue(message.message_type, out handler);
 			if(handler != null)
 			{
-				handler(from, jsonData);
+				handler(message);
 			}
 			else if(ServerMessageHandler != null)
 			{
-				ServerMessageHandler(messageId, from, jsonData);
+				ServerMessageHandler(message);
 			}
 			else
 			{
-				Debug.Log("No handler for message type: "+messageId);
+				Debug.Log("No handler for use message type: "+message.message_type);
 			}
 		}
 
@@ -656,12 +718,12 @@ namespace Serverville
             ); 
 		}
 
-		public void GetKeyDataRecords(string type, string parent, Action<KeyDataRecords> onSuccess, OnErrorReply onErr)
+		public void GetKeyDataRecords(string record_type, string parent, Action<KeyDataRecords> onSuccess, OnErrorReply onErr)
 		{
 			GetKeyDataRecords(
             new KeyDataRecordsRequest
 				{
-					type = type,
+					record_type = record_type,
 					parent = parent
 				},
 				onSuccess,
@@ -689,6 +751,69 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void CreateResident(CreateResidentRequest request, Action<CreateResidentReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<CreateResidentRequest,CreateResidentReply>("CreateResident", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void CreateResident(string resident_type, Dictionary<string,object> values, Action<CreateResidentReply> onSuccess, OnErrorReply onErr)
+		{
+			CreateResident(
+            new CreateResidentRequest
+				{
+					resident_type = resident_type,
+					values = values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void DeleteResident(DeleteResidentRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<DeleteResidentRequest,EmptyClientReply>("DeleteResident", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void DeleteResident(string resident_id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			DeleteResident(
+            new DeleteResidentRequest
+				{
+					resident_id = resident_id,
+					final_values = final_values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void RemoveResidentFromAllChannels(RemoveResidentFromAllChannelsRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<RemoveResidentFromAllChannelsRequest,EmptyClientReply>("RemoveResidentFromAllChannels", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void RemoveResidentFromAllChannels(string resident_id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			RemoveResidentFromAllChannels(
+            new RemoveResidentFromAllChannelsRequest
+				{
+					resident_id = resident_id,
+					final_values = final_values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void SetTransientValue(SetTransientValueRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -698,12 +823,12 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValue(string alias, string key, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValue(string resident_id, string key, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValue(
             new SetTransientValueRequest
 				{
-					alias = alias,
+					resident_id = resident_id,
 					key = key,
 					value = value
 				},
@@ -720,12 +845,54 @@ namespace Serverville
             ); 
 		}
 
-		public void SetTransientValues(string alias, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void SetTransientValues(string resident_id, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			SetTransientValues(
             new SetTransientValuesRequest
 				{
-					alias = alias,
+					resident_id = resident_id,
+					values = values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void DeleteTransientValue(DeleteTransientValueRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<DeleteTransientValueRequest,EmptyClientReply>("DeleteTransientValue", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void DeleteTransientValue(string resident_id, string key, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			DeleteTransientValue(
+            new DeleteTransientValueRequest
+				{
+					resident_id = resident_id,
+					key = key
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void DeleteTransientValues(DeleteTransientValuesRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<DeleteTransientValuesRequest,EmptyClientReply>("DeleteTransientValues", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void DeleteTransientValues(string resident_id, List<string> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			DeleteTransientValues(
+            new DeleteTransientValuesRequest
+				{
+					resident_id = resident_id,
 					values = values
 				},
 				onSuccess,
@@ -741,13 +908,12 @@ namespace Serverville
             ); 
 		}
 
-		public void GetTransientValue(string id, string alias, string key, Action<TransientDataItemReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValue(string resident_id, string key, Action<TransientDataItemReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValue(
             new GetTransientValueRequest
 				{
-					id = id,
-					alias = alias,
+					resident_id = resident_id,
 					key = key
 				},
 				onSuccess,
@@ -763,13 +929,12 @@ namespace Serverville
             ); 
 		}
 
-		public void GetTransientValues(string id, string alias, List<string> keys, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
+		public void GetTransientValues(string resident_id, List<string> keys, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
 			GetTransientValues(
             new GetTransientValuesRequest
 				{
-					id = id,
-					alias = alias,
+					resident_id = resident_id,
 					keys = keys
 				},
 				onSuccess,
@@ -785,13 +950,12 @@ namespace Serverville
             ); 
 		}
 
-		public void GetAllTransientValues(string id, string alias, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
+		public void GetAllTransientValues(string resident_id, Action<TransientDataItemsReply> onSuccess, OnErrorReply onErr)
 		{
 			GetAllTransientValues(
             new GetAllTransientValuesRequest
 				{
-					id = id,
-					alias = alias
+					resident_id = resident_id
 				},
 				onSuccess,
                 onErr
@@ -806,13 +970,13 @@ namespace Serverville
             ); 
 		}
 
-		public void JoinChannel(string alias, string id, Dictionary<string,object> values, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		public void JoinChannel(string channel_id, string resident_id, Dictionary<string,object> values, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
 			JoinChannel(
             new JoinChannelRequest
 				{
-					alias = alias,
-					id = id,
+					channel_id = channel_id,
+					resident_id = resident_id,
 					values = values
 				},
 				onSuccess,
@@ -828,121 +992,183 @@ namespace Serverville
             ); 
 		}
 
-		public void LeaveChannel(string alias, string id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void LeaveChannel(string channel_id, string resident_id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			LeaveChannel(
             new LeaveChannelRequest
 				{
-					alias = alias,
-					id = id,
+					channel_id = channel_id,
+					resident_id = resident_id,
 					final_values = final_values
 				},
 				onSuccess,
                 onErr
            ); 
 		}
-		public void AddAliasToChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void AddResidentToChannel(JoinChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<JoinChannelRequest,EmptyClientReply>("AddAliasToChannel", request,
+			ApiByName<JoinChannelRequest,EmptyClientReply>("AddResidentToChannel", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void AddAliasToChannel(string alias, string id, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void AddResidentToChannel(string channel_id, string resident_id, Dictionary<string,object> values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
-			AddAliasToChannel(
+			AddResidentToChannel(
             new JoinChannelRequest
 				{
-					alias = alias,
-					id = id,
+					channel_id = channel_id,
+					resident_id = resident_id,
 					values = values
 				},
 				onSuccess,
                 onErr
            ); 
 		}
-		public void RemoveAliasFromChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void RemoveResidentFromChannel(LeaveChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<LeaveChannelRequest,EmptyClientReply>("RemoveAliasFromChannel", request,
+			ApiByName<LeaveChannelRequest,EmptyClientReply>("RemoveResidentFromChannel", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void RemoveAliasFromChannel(string alias, string id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void RemoveResidentFromChannel(string channel_id, string resident_id, Dictionary<string,object> final_values, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
-			RemoveAliasFromChannel(
+			RemoveResidentFromChannel(
             new LeaveChannelRequest
 				{
-					alias = alias,
-					id = id,
+					channel_id = channel_id,
+					resident_id = resident_id,
 					final_values = final_values
 				},
 				onSuccess,
                 onErr
            ); 
 		}
-		public void ListenToChannel(ListenToResidentRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		public void ListenToChannel(ListenToChannelRequest request, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<ListenToResidentRequest,ChannelInfo>("ListenToChannel", request,
+			ApiByName<ListenToChannelRequest,ChannelInfo>("ListenToChannel", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void ListenToChannel(string id, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
+		public void ListenToChannel(string channel_id, Action<ChannelInfo> onSuccess, OnErrorReply onErr)
 		{
 			ListenToChannel(
-            new ListenToResidentRequest
+            new ListenToChannelRequest
 				{
-					id = id
+					channel_id = channel_id
 				},
 				onSuccess,
                 onErr
            ); 
 		}
-		public void StopListenToChannel(StopListenToResidentRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void StopListenToChannel(StopListenToChannelRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<StopListenToResidentRequest,EmptyClientReply>("StopListenToChannel", request,
+			ApiByName<StopListenToChannelRequest,EmptyClientReply>("StopListenToChannel", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void StopListenToChannel(string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void StopListenToChannel(string channel_id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
 			StopListenToChannel(
-            new StopListenToResidentRequest
+            new StopListenToChannelRequest
 				{
-					id = id
+					channel_id = channel_id
 				},
 				onSuccess,
                 onErr
            ); 
 		}
-		public void SendClientMessage(TransientMessageRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void TriggerResidentEvent(TriggerResidentEventRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<TransientMessageRequest,EmptyClientReply>("SendClientMessage", request,
+			ApiByName<TriggerResidentEventRequest,EmptyClientReply>("TriggerResidentEvent", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void SendClientMessage(string to, string alias, string message_type, object value, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		public void TriggerResidentEvent(string resident_id, string event_type, string event_data, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
 		{
-			SendClientMessage(
-            new TransientMessageRequest
+			TriggerResidentEvent(
+            new TriggerResidentEventRequest
+				{
+					resident_id = resident_id,
+					event_type = event_type,
+					event_data = event_data
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void SendUserMessage(SendUserMessageRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<SendUserMessageRequest,EmptyClientReply>("SendUserMessage", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SendUserMessage(string to, string message_type, string message, bool guaranteed, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			SendUserMessage(
+            new SendUserMessageRequest
 				{
 					to = to,
-					alias = alias,
 					message_type = message_type,
-					value = value
+					message = message,
+					guaranteed = guaranteed
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetPendingMessages(EmptyClientRequest request, Action<UserMessageList> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<EmptyClientRequest,UserMessageList>("GetPendingMessages", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetPendingMessages(Action<UserMessageList> onSuccess, OnErrorReply onErr)
+		{
+			GetPendingMessages(
+            new EmptyClientRequest
+				{
+
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void ClearPendingMessage(ClearMessageRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<ClearMessageRequest,EmptyClientReply>("ClearPendingMessage", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void ClearPendingMessage(string id, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			ClearPendingMessage(
+            new ClearMessageRequest
+				{
+					id = id
 				},
 				onSuccess,
                 onErr

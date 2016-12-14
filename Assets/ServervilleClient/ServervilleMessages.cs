@@ -217,7 +217,7 @@ OBJECT
 	public class KeyDataInfo
 	{
 		public string id;
-		public string type;
+		public string record_type;
 		public string owner;
 		public string parent;
 		public double version;
@@ -228,7 +228,7 @@ OBJECT
 	[Serializable]
 	public class KeyDataRecordsRequest
 	{
-		public string type;
+		public string record_type;
 		public string parent;
 	}
 
@@ -246,9 +246,36 @@ OBJECT
 	}
 
 	[Serializable]
+	public class CreateResidentRequest
+	{
+		public string resident_type;
+		public Dictionary<string,object> values;
+	}
+
+	[Serializable]
+	public class CreateResidentReply
+	{
+		public string resident_id;
+	}
+
+	[Serializable]
+	public class DeleteResidentRequest
+	{
+		public string resident_id;
+		public Dictionary<string,object> final_values;
+	}
+
+	[Serializable]
+	public class RemoveResidentFromAllChannelsRequest
+	{
+		public string resident_id;
+		public Dictionary<string,object> final_values;
+	}
+
+	[Serializable]
 	public class SetTransientValueRequest
 	{
-		public string alias;
+		public string resident_id;
 		public string key;
 		public object value;
 	}
@@ -256,15 +283,28 @@ OBJECT
 	[Serializable]
 	public class SetTransientValuesRequest
 	{
-		public string alias;
+		public string resident_id;
 		public Dictionary<string,object> values;
+	}
+
+	[Serializable]
+	public class DeleteTransientValueRequest
+	{
+		public string resident_id;
+		public string key;
+	}
+
+	[Serializable]
+	public class DeleteTransientValuesRequest
+	{
+		public string resident_id;
+		public List<string> values;
 	}
 
 	[Serializable]
 	public class GetTransientValueRequest
 	{
-		public string id;
-		public string alias;
+		public string resident_id;
 		public string key;
 	}
 
@@ -277,8 +317,7 @@ OBJECT
 	[Serializable]
 	public class GetTransientValuesRequest
 	{
-		public string id;
-		public string alias;
+		public string resident_id;
 		public List<string> keys;
 	}
 
@@ -291,29 +330,28 @@ OBJECT
 	[Serializable]
 	public class GetAllTransientValuesRequest
 	{
-		public string id;
-		public string alias;
+		public string resident_id;
 	}
 
 	[Serializable]
 	public class JoinChannelRequest
 	{
-		public string alias;
-		public string id;
+		public string channel_id;
+		public string resident_id;
 		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
 	public class ChannelMemberInfo
 	{
-		public string id;
+		public string resident_id;
 		public Dictionary<string,object> values;
 	}
 
 	[Serializable]
 	public class ChannelInfo
 	{
-		public string id;
+		public string channel_id;
 		public Dictionary<string,object> values;
 		public Dictionary<string,ChannelMemberInfo> members;
 	}
@@ -321,30 +359,60 @@ OBJECT
 	[Serializable]
 	public class LeaveChannelRequest
 	{
-		public string alias;
-		public string id;
+		public string channel_id;
+		public string resident_id;
 		public Dictionary<string,object> final_values;
 	}
 
 	[Serializable]
-	public class ListenToResidentRequest
+	public class ListenToChannelRequest
 	{
-		public string id;
+		public string channel_id;
 	}
 
 	[Serializable]
-	public class StopListenToResidentRequest
+	public class StopListenToChannelRequest
 	{
-		public string id;
+		public string channel_id;
 	}
 
 	[Serializable]
-	public class TransientMessageRequest
+	public class TriggerResidentEventRequest
+	{
+		public string resident_id;
+		public string event_type;
+		public string event_data;
+	}
+
+	[Serializable]
+	public class SendUserMessageRequest
 	{
 		public string to;
-		public string alias;
 		public string message_type;
-		public object value;
+		public string message;
+		public bool guaranteed;
+	}
+
+	[Serializable]
+	public class UserMessageNotification
+	{
+		public string id;
+		public string message_type;
+		public string message;
+		public string from_id;
+		public bool sender_is_user;
+	}
+
+	[Serializable]
+	public class UserMessageList
+	{
+		public List<UserMessageNotification> messages;
+	}
+
+	[Serializable]
+	public class ClearMessageRequest
+	{
+		public string id;
 	}
 
 	[Serializable]
@@ -408,6 +476,53 @@ OBJECT
 		public string product_id;
 		public double price;
 		public Dictionary<string,int> currencies;
+	}
+
+	[Serializable]
+	public class ResidentJoinedNotification
+	{
+		public string resident_id;
+		public string via_channel;
+		public Dictionary<string,object> values;
+	}
+
+	[Serializable]
+	public class ResidentStateUpdateNotification
+	{
+		public string resident_id;
+		public string via_channel;
+		public Dictionary<string,object> values;
+		public List<string> deleted;
+	}
+
+	[Serializable]
+	public class ResidentLeftNotification
+	{
+		public string resident_id;
+		public string via_channel;
+		public Dictionary<string,object> final_values;
+	}
+
+	[Serializable]
+	public class ResidentEventNotification
+	{
+		public string resident_id;
+		public string via_channel;
+		public string event_type;
+		public string event_data;
+	}
+
+	[Serializable]
+	public class PendingNotification
+	{
+		public string notification_type;
+		public string body;
+	}
+
+	[Serializable]
+	public class PendingNotificationList
+	{
+		public List<PendingNotification> notifications;
 	}
 
 

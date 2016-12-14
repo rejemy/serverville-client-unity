@@ -77,7 +77,36 @@ namespace Serverville
 					if(onError != null)
 						onError(err);
 				}
+
+				if(www.GetResponseHeader("X-Notifications") != null)
+				{
+					// Pending notifications from the server!
+					GetNotifications(sv);
+				}
 			}
+		}
+
+		private void GetNotifications(ServervilleClient sv)
+		{
+			string url = sv.ServerURL+"/notifications";
+
+			StartCoroutine(PostJSON(sv, url, "{}", typeof(PendingNotificationList), sv.SessionId,
+				delegate(object reply)
+				{
+					PendingNotificationList notifications = (PendingNotificationList)reply;
+					if(notifications.notifications == null)
+						return;
+				
+					foreach(PendingNotification note in notifications.notifications)
+					{
+						sv.OnServerNotification(note.notification_type, note.body);
+					}
+				},
+				delegate(ErrorReply err)
+				{
+					Debug.LogError("Error getting notifications"+err.errorMessage);
+				}
+			));
 		}
 	}
 
@@ -133,6 +162,8 @@ namespace Serverville
 		{
 			
 		}
+
+
 
 	}
 

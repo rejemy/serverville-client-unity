@@ -58,12 +58,11 @@ namespace Serverville
 		private ServervilleTransport Transport;
 
 		public delegate void ErrorHandlerDelegate(ErrorReply err);
-		public delegate void ServerMessageTypeHandlerDelegate(string from, string json);
-		public delegate void ServerMessageHandlerDelegate(string messageType, string from, string json);
+		public delegate void UserMessageHandlerDelegate(UserMessageNotification message);
 
 		public ErrorHandlerDelegate GlobalErrorHandler;
-		public ServerMessageHandlerDelegate ServerMessageHandler;
-		public Dictionary<string,ServerMessageTypeHandlerDelegate> ServerMessageTypeHandlers;
+		public UserMessageHandlerDelegate ServerMessageHandler;
+		public Dictionary<string,UserMessageHandlerDelegate> ServerMessageTypeHandlers;
 
 		public float PingPeriod = 5.0f;
 		private float LastSend = 0.0f;
@@ -78,7 +77,7 @@ namespace Serverville
 			if(SessionId != null && SessionId.Length == 0)
 				SessionId = null;
 
-			ServerMessageTypeHandlers = new Dictionary<string,ServerMessageTypeHandlerDelegate>();
+			ServerMessageTypeHandlers = new Dictionary<string,UserMessageHandlerDelegate>();
 
 			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
 			{
@@ -173,29 +172,67 @@ namespace Serverville
 			}
 		}
 
-		internal void OnServerMessage(string messageId, string from, string via, string jsonData)
+		internal void OnServerNotification(string notificationType, string notificationJson)
 		{
-			if(messageId == "_error")
+			switch(notificationType)
 			{
-				// Pushed error
-				ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
-				OnServerError(err);
-				return;
+				case "error":
+				{
+					// Pushed error
+					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
+					OnServerError(err);
+					return;
+				}
+				case "msg":
+				{
+					UserMessageNotification note = JsonConvert.DeserializeObject<UserMessageNotification>(jsonData, ServervilleHttp.JsonSettings);
+					OnUserMessage(note);
+					return;
+				}
+				case "resJoined":
+				{
+					
+					return;
+				}
+				case "resLeft":
+				{
+
+					return;
+				}
+				case "resEvent":
+				{
+
+					return;
+				}
+				case "resUpdate":
+				{
+
+					return;
+				}
+				default:
+				{
+					Debug.Log("Unknown server notification type: "+notificationType);
+					return;
+				}
 			}
 
-			ServerMessageTypeHandlerDelegate handler = null;
-			ServerMessageTypeHandlers.TryGetValue(messageId, out handler);
+		}
+
+		internal void OnUserMessage(UserMessageNotification message)
+		{
+			UserMessageHandlerDelegate handler = null;
+			ServerMessageTypeHandlers.TryGetValue(message.message_type, out handler);
 			if(handler != null)
 			{
-				handler(from, jsonData);
+				handler(message);
 			}
 			else if(ServerMessageHandler != null)
 			{
-				ServerMessageHandler(messageId, from, jsonData);
+				ServerMessageHandler(message);
 			}
 			else
 			{
-				Debug.Log("No handler for message type: "+messageId);
+				Debug.Log("No handler for use message type: "+message.message_type);
 			}
 		}
 

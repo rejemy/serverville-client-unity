@@ -200,7 +200,7 @@ namespace Serverville
 				}
 
 				string messageType = messageStr.Substring(0, split1);
-				if(messageType == "M")
+				if(messageType == "N")
 				{
 					// Server push message
 					int split2 = messageStr.IndexOf(':', split1+1);
@@ -209,28 +209,11 @@ namespace Serverville
 						Debug.Log("Incorrectly formatted message");
 						return;
 					}
-					int split3 = messageStr.IndexOf(':', split2+1);
-					if(split3 < 0)
-					{
-						Debug.Log("Incorrectly formatted message");
-						return;
-					}
-					int split4 = messageStr.IndexOf(':', split3+1);
-					if(split4 < 0)
-					{
-						Debug.Log("Incorrectly formatted message");
-						return;
-					}
 
-					string messageId = messageStr.Substring(split1+1, split2-(split1+1));
-					string messageFrom = messageStr.Substring(split2+1, split3-(split2+1));
-					string messageVia = messageStr.Substring(split3+1, split4-(split3+1));
-					string messageJson = messageStr.Substring(split4+1);
-					if(messageFrom.Length == 0)
-						messageFrom = null;
-					if(messageVia.Length == 0)
-						messageVia = null;
-					SV.OnServerMessage(messageId, messageFrom, messageVia, messageJson);
+					string notificationType = messageStr.Substring(split1+1, split2-(split1+1));
+					string notificationJson = messageStr.Substring(split2+1);
+
+					SV.OnServerNotification(notificationType, notificationJson);
 				}
 				else if(messageType == "E" || messageType == "R")
 				{

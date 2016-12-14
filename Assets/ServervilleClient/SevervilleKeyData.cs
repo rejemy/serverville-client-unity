@@ -66,7 +66,7 @@ namespace Serverville
 		}
 
 		public string GetId() { return Id; }
-		public string GetDataType() { return RecordInfo.type; }
+		public string GetDataType() { return RecordInfo.record_type; }
 		public int GetVersion() { return (int)RecordInfo.version; }
 
 		public string GetOwnerId() { return RecordInfo.owner; }
