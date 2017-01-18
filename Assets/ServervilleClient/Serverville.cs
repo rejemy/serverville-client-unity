@@ -47,8 +47,12 @@ namespace Serverville
 	public class ServervilleClient
 	{
 		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
+		public delegate void OnSwitchHostsComplete(ErrorReply err);
 
 		internal string ServerURL;
+		internal string ServerHost;
+		internal string ServerProtocol;
+
 		internal string SessionId;
 
 		private UserAccountInfo UserInfo;
@@ -59,19 +63,10 @@ namespace Serverville
 
 		public delegate void ErrorHandlerDelegate(ErrorReply err);
 		public delegate void UserMessageHandlerDelegate(UserMessageNotification message);
-		public delegate void ResidentJoinedNotificationDelegate(ResidentJoinedNotification message);
-		public delegate void ResidentLeftNotificationDelegate(ResidentLeftNotification message);
-		public delegate void ResidentEventNotificationDelegate(ResidentEventNotification message);
-		public delegate void ResidentStateUpdateNotificationDelegate(ResidentStateUpdateNotification message);
 
 		public ErrorHandlerDelegate GlobalErrorHandler;
 		public UserMessageHandlerDelegate ServerMessageHandler;
 		public Dictionary<string,UserMessageHandlerDelegate> ServerMessageTypeHandlers;
-
-		public ResidentJoinedNotificationDelegate ResidentJoinedHandler;
-		public ResidentLeftNotificationDelegate ResidentLeftHandler;
-		public ResidentEventNotificationDelegate ResidentEventHandler;
-		public ResidentStateUpdateNotificationDelegate ResidentStateUpdateHandler;
 
 		public float PingPeriod = 5.0f;
 		private float LastSend = 0.0f;
@@ -81,12 +76,23 @@ namespace Serverville
 
 		public ServervilleClient(string url)
 		{
-			ServerURL = url;
 			SessionId = PlayerPrefs.GetString("Serverville"+ServerURL+"SessionId", null);
 			if(SessionId != null && SessionId.Length == 0)
 				SessionId = null;
+			
+			InitServerURL(url);
 
 			ServerMessageTypeHandlers = new Dictionary<string,UserMessageHandlerDelegate>();
+		}
+
+		private void InitServerURL(string url)
+		{
+			ServerURL = url;
+			int protocolLength = url.IndexOf("://");
+			if(protocolLength < 2)
+				throw new Exception("Malformed url: "+url);
+			ServerHost = ServerURL.Substring(protocolLength+3);
+			ServerProtocol = ServerURL.Substring(0, protocolLength);
 
 			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
 			{
@@ -114,7 +120,8 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(SignInReply reply)
+						ValidateSession(SessionId,
+							delegate(SignInReply reply)
 							{
 								onComplete(reply, null);
 							},
@@ -129,7 +136,30 @@ namespace Serverville
 						onComplete(null, null);
 					}
 
-				});
+				}
+			);
+		}
+
+		public void SwitchHosts(string host, OnSwitchHostsComplete onComplete)
+		{
+			string url = host;
+			if(host.IndexOf("://") < 0)
+			{
+				url = ServerProtocol + "://"+host;
+			}
+
+			if(ServerURL == host)
+			{
+				onComplete(null);
+				return;
+			}
+
+			Shutdown();
+
+			InitServerURL(url);
+			Init(delegate(SignInReply userInfo, ErrorReply err) {
+				onComplete(err);
+			});
 		}
 
 		private void SetUserInfo(SignInReply reply)
@@ -200,38 +230,22 @@ namespace Serverville
 				}
 				case "resJoined":
 				{
-					if(ResidentJoinedHandler != null)
-					{
-						ResidentJoinedNotification note = JsonConvert.DeserializeObject<ResidentJoinedNotification>(notificationJson, ServervilleHttp.JsonSettings);
-						ResidentJoinedHandler(note);
-					}
+					
 					return;
 				}
 				case "resLeft":
 				{
-					if(ResidentLeftHandler != null)
-					{
-						ResidentLeftNotification note = JsonConvert.DeserializeObject<ResidentLeftNotification>(notificationJson, ServervilleHttp.JsonSettings);
-						ResidentLeftHandler(note);
-					}
+
 					return;
 				}
 				case "resEvent":
 				{
-					if(ResidentEventHandler != null)
-					{
-						ResidentEventNotification note = JsonConvert.DeserializeObject<ResidentEventNotification>(notificationJson, ServervilleHttp.JsonSettings);
-						ResidentEventHandler(note);
-					}
+
 					return;
 				}
 				case "resUpdate":
 				{
-					if(ResidentStateUpdateHandler != null)
-					{
-						ResidentStateUpdateNotification note = JsonConvert.DeserializeObject<ResidentStateUpdateNotification>(notificationJson, ServervilleHttp.JsonSettings);
-						ResidentStateUpdateHandler(note);
-					}
+
 					return;
 				}
 				default:
@@ -746,6 +760,26 @@ namespace Serverville
 				{
 					id = id,
 					values = values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetHostWithResident(GetHostWithResidentRequest request, Action<GetHostWithResidentReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<GetHostWithResidentRequest,GetHostWithResidentReply>("GetHostWithResident", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetHostWithResident(string resident_id, Action<GetHostWithResidentReply> onSuccess, OnErrorReply onErr)
+		{
+			GetHostWithResident(
+            new GetHostWithResidentRequest
+				{
+					resident_id = resident_id
 				},
 				onSuccess,
                 onErr

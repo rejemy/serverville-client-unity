@@ -246,6 +246,18 @@ OBJECT
 	}
 
 	[Serializable]
+	public class GetHostWithResidentRequest
+	{
+		public string resident_id;
+	}
+
+	[Serializable]
+	public class GetHostWithResidentReply
+	{
+		public string host;
+	}
+
+	[Serializable]
 	public class CreateResidentRequest
 	{
 		public string resident_type;

@@ -47,8 +47,12 @@ namespace Serverville
 	public class ServervilleClient
 	{
 		public delegate void OnInitComplete(SignInReply userInfo, ErrorReply err);
+		public delegate void OnSwitchHostsComplete(ErrorReply err);
 
 		internal string ServerURL;
+		internal string ServerHost;
+		internal string ServerProtocol;
+
 		internal string SessionId;
 
 		private UserAccountInfo UserInfo;
@@ -72,12 +76,23 @@ namespace Serverville
 
 		public ServervilleClient(string url)
 		{
-			ServerURL = url;
 			SessionId = PlayerPrefs.GetString("Serverville"+ServerURL+"SessionId", null);
 			if(SessionId != null && SessionId.Length == 0)
 				SessionId = null;
+			
+			InitServerURL(url);
 
 			ServerMessageTypeHandlers = new Dictionary<string,UserMessageHandlerDelegate>();
+		}
+
+		private void InitServerURL(string url)
+		{
+			ServerURL = url;
+			int protocolLength = url.IndexOf("://");
+			if(protocolLength < 2)
+				throw new Exception("Malformed url: "+url);
+			ServerHost = ServerURL.Substring(protocolLength+3);
+			ServerProtocol = ServerURL.Substring(0, protocolLength);
 
 			if(ServerURL.StartsWith("http://") || ServerURL.StartsWith("https://"))
 			{
@@ -105,7 +120,8 @@ namespace Serverville
 
 					if(SessionId != null)
 					{
-						ValidateSession(SessionId, delegate(SignInReply reply)
+						ValidateSession(SessionId,
+							delegate(SignInReply reply)
 							{
 								onComplete(reply, null);
 							},
@@ -120,7 +136,30 @@ namespace Serverville
 						onComplete(null, null);
 					}
 
-				});
+				}
+			);
+		}
+
+		public void SwitchHosts(string host, OnSwitchHostsComplete onComplete)
+		{
+			string url = host;
+			if(host.IndexOf("://") < 0)
+			{
+				url = ServerProtocol + "://"+host;
+			}
+
+			if(ServerURL == host)
+			{
+				onComplete(null);
+				return;
+			}
+
+			Shutdown();
+
+			InitServerURL(url);
+			Init(delegate(SignInReply userInfo, ErrorReply err) {
+				onComplete(err);
+			});
 		}
 
 		private void SetUserInfo(SignInReply reply)
@@ -179,13 +218,13 @@ namespace Serverville
 				case "error":
 				{
 					// Pushed error
-					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(jsonData, ServervilleHttp.JsonSettings);
+					ErrorReply err = JsonConvert.DeserializeObject<ErrorReply>(notificationJson, ServervilleHttp.JsonSettings);
 					OnServerError(err);
 					return;
 				}
 				case "msg":
 				{
-					UserMessageNotification note = JsonConvert.DeserializeObject<UserMessageNotification>(jsonData, ServervilleHttp.JsonSettings);
+					UserMessageNotification note = JsonConvert.DeserializeObject<UserMessageNotification>(notificationJson, ServervilleHttp.JsonSettings);
 					OnUserMessage(note);
 					return;
 				}
