@@ -703,6 +703,29 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void PageAllDataKeys(PageGlobalKeysRequest request, Action<OrderedDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<PageGlobalKeysRequest,OrderedDataReply>("PageAllDataKeys", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void PageAllDataKeys(string id, double page_size, string start_after, bool descending, Action<OrderedDataReply> onSuccess, OnErrorReply onErr)
+		{
+			PageAllDataKeys(
+            new PageGlobalKeysRequest
+				{
+					id = id,
+					page_size = page_size,
+					start_after = start_after,
+					descending = descending
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void GetKeyDataRecord(KeyDataRecordRequest request, Action<KeyDataInfo> onSuccess, OnErrorReply onErr)
 		{
             

@@ -208,6 +208,21 @@ OBJECT
 	}
 
 	[Serializable]
+	public class PageGlobalKeysRequest
+	{
+		public string id;
+		public double page_size;
+		public string start_after;
+		public bool descending;
+	}
+
+	[Serializable]
+	public class OrderedDataReply
+	{
+		public List<DataItemReply> values;
+	}
+
+	[Serializable]
 	public class KeyDataRecordRequest
 	{
 		public string id;
