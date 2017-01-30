@@ -53,6 +53,19 @@ namespace Serverville
 	}
 
 	[Serializable]
+	public class ChangePasswordRequest
+	{
+		public string old_password;
+		public string new_password;
+	}
+
+	[Serializable]
+	public class ChangePasswordReply
+	{
+		public string session_id;
+	}
+
+	[Serializable]
 	public class EmptyClientRequest
 	{
 	}

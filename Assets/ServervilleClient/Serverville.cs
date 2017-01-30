@@ -453,6 +453,27 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void ChangePassword(ChangePasswordRequest request, Action<ChangePasswordReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<ChangePasswordRequest,ChangePasswordReply>("ChangePassword", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void ChangePassword(string old_password, string new_password, Action<ChangePasswordReply> onSuccess, OnErrorReply onErr)
+		{
+			ChangePassword(
+            new ChangePasswordRequest
+				{
+					old_password = old_password,
+					new_password = new_password
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void GetTime(EmptyClientRequest request, Action<ServerTime> onSuccess, OnErrorReply onErr)
 		{
             
