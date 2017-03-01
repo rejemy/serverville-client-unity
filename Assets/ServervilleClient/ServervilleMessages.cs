@@ -7,6 +7,18 @@ namespace Serverville
 {
 
 	[Serializable]
+	public class SetLocaleRequest
+	{
+		public string country;
+		public string language;
+	}
+
+	[Serializable]
+	public class EmptyClientReply
+	{
+	}
+
+	[Serializable]
 	public class SignIn
 	{
 		public string username;
@@ -92,18 +104,6 @@ namespace Serverville
 	}
 
 	[Serializable]
-	public class SetLocaleRequest
-	{
-		public string country;
-		public string language;
-	}
-
-	[Serializable]
-	public class EmptyClientReply
-	{
-	}
-
-	[Serializable]
 	public class GetUserDataComboRequest
 	{
 		public double since;
@@ -169,6 +169,13 @@ OBJECT
 	public class UserDataRequestList
 	{
 		public List<SetUserDataRequest> values;
+	}
+
+	[Serializable]
+	public class UserDataSetAndDeleteRequestList
+	{
+		public List<SetUserDataRequest> values;
+		public List<string> delete_keys;
 	}
 
 	[Serializable]

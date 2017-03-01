@@ -339,6 +339,27 @@ namespace Serverville
             LastSend = Time.unscaledTime;
 		}
         
+		public void SetLocale(SetLocaleRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<SetLocaleRequest,EmptyClientReply>("SetLocale", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SetLocale(string country, string language, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			SetLocale(
+            new SetLocaleRequest
+				{
+					country = country,
+					language = language
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -514,27 +535,6 @@ namespace Serverville
                 onErr
            ); 
 		}
-		public void SetLocale(SetLocaleRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
-		{
-            
-			ApiByName<SetLocaleRequest,EmptyClientReply>("SetLocale", request,
-				onSuccess,
-				onErr
-            ); 
-		}
-
-		public void SetLocale(string country, string language, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
-		{
-			SetLocale(
-            new SetLocaleRequest
-				{
-					country = country,
-					language = language
-				},
-				onSuccess,
-                onErr
-           ); 
-		}
 		public void GetUserDataCombo(GetUserDataComboRequest request, Action<GetUserDataComboReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -592,6 +592,27 @@ namespace Serverville
             new UserDataRequestList
 				{
 					values = values
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void SetAndDeleteUserKeys(UserDataSetAndDeleteRequestList request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<UserDataSetAndDeleteRequestList,SetDataReply>("SetAndDeleteUserKeys", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SetAndDeleteUserKeys(List<SetUserDataRequest> values, List<string> delete_keys, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+			SetAndDeleteUserKeys(
+            new UserDataSetAndDeleteRequestList
+				{
+					values = values,
+					delete_keys = delete_keys
 				},
 				onSuccess,
                 onErr
