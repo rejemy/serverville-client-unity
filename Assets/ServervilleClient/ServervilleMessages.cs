@@ -197,6 +197,18 @@ OBJECT
 	}
 
 	[Serializable]
+	public class DeleteKeyRequest
+	{
+		public string key;
+	}
+
+	[Serializable]
+	public class DeleteKeysRequest
+	{
+		public List<string> keys;
+	}
+
+	[Serializable]
 	public class GlobalKeyRequest
 	{
 		public string id;

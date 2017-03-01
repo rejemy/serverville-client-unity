@@ -658,6 +658,46 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void DeleteUserKey(DeleteKeyRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<DeleteKeyRequest,SetDataReply>("DeleteUserKey", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void DeleteUserKey(string key, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+			DeleteUserKey(
+            new DeleteKeyRequest
+				{
+					key = key
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void DeleteUserKeys(DeleteKeysRequest request, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<DeleteKeysRequest,SetDataReply>("DeleteUserKeys", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void DeleteUserKeys(List<string> keys, Action<SetDataReply> onSuccess, OnErrorReply onErr)
+		{
+			DeleteUserKeys(
+            new DeleteKeysRequest
+				{
+					keys = keys
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 		public void GetDataKey(GlobalKeyRequest request, Action<DataItemReply> onSuccess, OnErrorReply onErr)
 		{
             
