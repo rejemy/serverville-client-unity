@@ -339,27 +339,6 @@ namespace Serverville
             LastSend = Time.unscaledTime;
 		}
         
-		public void SetLocale(SetLocaleRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
-		{
-            
-			ApiByName<SetLocaleRequest,EmptyClientReply>("SetLocale", request,
-				onSuccess,
-				onErr
-            ); 
-		}
-
-		public void SetLocale(string country, string language, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
-		{
-			SetLocale(
-            new SetLocaleRequest
-				{
-					country = country,
-					language = language
-				},
-				onSuccess,
-                onErr
-           ); 
-		}
 		public void SignIn(SignIn request, Action<SignInReply> onSuccess, OnErrorReply onErr)
 		{
             
@@ -530,6 +509,27 @@ namespace Serverville
             new GetUserInfo
 				{
 
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void SetLocale(SetLocaleRequest request, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<SetLocaleRequest,EmptyClientReply>("SetLocale", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void SetLocale(string country, string language, Action<EmptyClientReply> onSuccess, OnErrorReply onErr)
+		{
+			SetLocale(
+            new SetLocaleRequest
+				{
+					country = country,
+					language = language
 				},
 				onSuccess,
                 onErr
@@ -756,6 +756,29 @@ namespace Serverville
 				{
 					id = id,
 					keys = keys,
+					since = since,
+					include_deleted = include_deleted
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void GetDataKeysStartingWith(KeysStartingWithRequest request, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<KeysStartingWithRequest,UserDataReply>("GetDataKeysStartingWith", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void GetDataKeysStartingWith(string id, string prefix, double since, bool include_deleted, Action<UserDataReply> onSuccess, OnErrorReply onErr)
+		{
+			GetDataKeysStartingWith(
+            new KeysStartingWithRequest
+				{
+					id = id,
+					prefix = prefix,
 					since = since,
 					include_deleted = include_deleted
 				},
@@ -1223,6 +1246,28 @@ namespace Serverville
             new StopListenToChannelRequest
 				{
 					channel_id = channel_id
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void UpdateWorldListeningZones(UpdateWorldListeningZonesRequest request, Action<WorldZonesInfo> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<UpdateWorldListeningZonesRequest,WorldZonesInfo>("UpdateWorldListeningZones", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void UpdateWorldListeningZones(string world_id, List<string> listen_to, List<string> stop_listen_to, Action<WorldZonesInfo> onSuccess, OnErrorReply onErr)
+		{
+			UpdateWorldListeningZones(
+            new UpdateWorldListeningZonesRequest
+				{
+					world_id = world_id,
+					listen_to = listen_to,
+					stop_listen_to = stop_listen_to
 				},
 				onSuccess,
                 onErr

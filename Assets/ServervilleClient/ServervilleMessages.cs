@@ -7,18 +7,6 @@ namespace Serverville
 {
 
 	[Serializable]
-	public class SetLocaleRequest
-	{
-		public string country;
-		public string language;
-	}
-
-	[Serializable]
-	public class EmptyClientReply
-	{
-	}
-
-	[Serializable]
 	public class SignIn
 	{
 		public string username;
@@ -101,6 +89,18 @@ namespace Serverville
 		public string email;
 		public string session_id;
 		public double admin_level;
+	}
+
+	[Serializable]
+	public class SetLocaleRequest
+	{
+		public string country;
+		public string language;
+	}
+
+	[Serializable]
+	public class EmptyClientReply
+	{
 	}
 
 	[Serializable]
@@ -227,6 +227,15 @@ OBJECT
 	{
 		public string id;
 		public List<string> keys;
+		public double since;
+		public bool include_deleted;
+	}
+
+	[Serializable]
+	public class KeysStartingWithRequest
+	{
+		public string id;
+		public string prefix;
 		public double since;
 		public bool include_deleted;
 	}
@@ -433,6 +442,20 @@ OBJECT
 	public class StopListenToChannelRequest
 	{
 		public string channel_id;
+	}
+
+	[Serializable]
+	public class UpdateWorldListeningZonesRequest
+	{
+		public string world_id;
+		public List<string> listen_to;
+		public List<string> stop_listen_to;
+	}
+
+	[Serializable]
+	public class WorldZonesInfo
+	{
+		public Dictionary<string,ChannelInfo> zones;
 	}
 
 	[Serializable]
