@@ -1459,6 +1459,26 @@ namespace Serverville
                 onErr
            ); 
 		}
+		public void batchRequest(BatchRequest request, Action<BatchRequestReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<BatchRequest,BatchRequestReply>("batchRequest", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void batchRequest(List<BatchRequestItem> requests, Action<BatchRequestReply> onSuccess, OnErrorReply onErr)
+		{
+			batchRequest(
+            new BatchRequest
+				{
+					requests = requests
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
 
 
 	}

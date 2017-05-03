@@ -561,6 +561,25 @@ OBJECT
 	}
 
 	[Serializable]
+	public class BatchRequestItem
+	{
+		public string api;
+		public string request;
+	}
+
+	[Serializable]
+	public class BatchRequest
+	{
+		public List<BatchRequestItem> requests;
+	}
+
+	[Serializable]
+	public class BatchRequestReply
+	{
+		public List<object> replies;
+	}
+
+	[Serializable]
 	public class ResidentJoinedNotification
 	{
 		public string resident_id;
