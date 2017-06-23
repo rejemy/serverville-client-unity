@@ -413,6 +413,7 @@ OBJECT
 	public class ChannelMemberInfo
 	{
 		public string resident_id;
+		public string resident_type;
 		public Dictionary<string,object> values;
 	}
 
@@ -420,6 +421,7 @@ OBJECT
 	public class ChannelInfo
 	{
 		public string channel_id;
+		public string channel_type;
 		public Dictionary<string,object> values;
 		public Dictionary<string,ChannelMemberInfo> members;
 	}
@@ -583,6 +585,7 @@ OBJECT
 	public class ResidentJoinedNotification
 	{
 		public string resident_id;
+		public string resident_type;
 		public string via_channel;
 		public Dictionary<string,object> values;
 	}
