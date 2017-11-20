@@ -1438,18 +1438,18 @@ namespace Serverville
                 onErr
            ); 
 		}
-		public void stripeCheckout(StripeCheckoutRequest request, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		public void StripeCheckout(StripeCheckoutRequest request, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
 		{
             
-			ApiByName<StripeCheckoutRequest,ProductPurchasedReply>("stripeCheckout", request,
+			ApiByName<StripeCheckoutRequest,ProductPurchasedReply>("StripeCheckout", request,
 				onSuccess,
 				onErr
             ); 
 		}
 
-		public void stripeCheckout(string stripe_token, string product_id, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		public void StripeCheckout(string stripe_token, string product_id, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
 		{
-			stripeCheckout(
+			StripeCheckout(
             new StripeCheckoutRequest
 				{
 					stripe_token = stripe_token,
@@ -1474,6 +1474,47 @@ namespace Serverville
             new BatchRequest
 				{
 					requests = requests
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void getBraintreeClientToken(BraintreeClientTokenRequest request, Action<BraintreeClientTokenReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<BraintreeClientTokenRequest,BraintreeClientTokenReply>("getBraintreeClientToken", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void getBraintreeClientToken(int api_version, Action<BraintreeClientTokenReply> onSuccess, OnErrorReply onErr)
+		{
+			getBraintreeClientToken(
+            new BraintreeClientTokenRequest
+				{
+					api_version = api_version
+				},
+				onSuccess,
+                onErr
+           ); 
+		}
+		public void BraintreePurchase(BraintreePurchaseRequest request, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		{
+            
+			ApiByName<BraintreePurchaseRequest,ProductPurchasedReply>("BraintreePurchase", request,
+				onSuccess,
+				onErr
+            ); 
+		}
+
+		public void BraintreePurchase(string nonce, string product_id, Action<ProductPurchasedReply> onSuccess, OnErrorReply onErr)
+		{
+			BraintreePurchase(
+            new BraintreePurchaseRequest
+				{
+					nonce = nonce,
+					product_id = product_id
 				},
 				onSuccess,
                 onErr

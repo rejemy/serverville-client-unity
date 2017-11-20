@@ -582,6 +582,25 @@ OBJECT
 	}
 
 	[Serializable]
+	public class BraintreeClientTokenRequest
+	{
+		public int api_version;
+	}
+
+	[Serializable]
+	public class BraintreeClientTokenReply
+	{
+		public string client_token;
+	}
+
+	[Serializable]
+	public class BraintreePurchaseRequest
+	{
+		public string nonce;
+		public string product_id;
+	}
+
+	[Serializable]
 	public class ResidentJoinedNotification
 	{
 		public string resident_id;
